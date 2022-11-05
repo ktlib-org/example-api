@@ -1,0 +1,18 @@
+application:
+  name: An API
+  email: org.ktapi.email.SendGrid
+
+web:
+  accessManager: api.AccessManager
+  corsOrigins: "*"
+
+email:
+  defaultFrom: noreply@ktapi.org
+  defaultFromName: KtApi
+  verificationTemplate: fakeVerificationTemplate
+  forgotPasswordTemplate: fakeForgotPasswordTemplate
+  userInviteTemplate: fakeUserInviteTemplate
+
+db:
+  type: Postgres
+  driver: org.postgresql.Driver
