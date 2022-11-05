@@ -20,7 +20,7 @@ object StatusController : Router {
     }
 
     private const val detailsKey = ""
-    private const val tag = "Status"
+    private const val tag = "System"
 
     private val status = documentedHandler {
         doc("status", "Returns status of API", tag) {

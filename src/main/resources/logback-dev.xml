@@ -7,6 +7,9 @@
 
     <logger name="software" level="INFO"/>
     <logger name="com.zaxxer" level="INFO"/>
+    <logger name="org.eclipse.jetty" level="INFO"/>
+    <logger name="o.eclipse.jetty" level="INFO"/>
+    <logger name="o.e.jetty" level="INFO"/>
 
     <root level="DEBUG">
         <appender-ref ref="console"/>
