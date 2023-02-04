@@ -30,7 +30,7 @@ object OrganizationController : Router {
                 delete("/{inviteId}", removeInvite, Admin)
             }
             get("/users", users, User)
-            path("/users/{orgUserId}") {
+            path("/users/{userId}") {
                 delete(removeUser, Admin)
                 patch(updateUserRole, Admin)
             }
