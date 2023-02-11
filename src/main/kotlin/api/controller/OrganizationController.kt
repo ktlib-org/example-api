@@ -48,7 +48,7 @@ object OrganizationController : Router {
         operationId = "createOrganization",
         summary = "Creates a new organization for the logged in user",
         tags = [tag],
-        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = OrganizationCreate::class)]),
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(OrganizationCreate::class)]),
         responses = [OpenApiResponse("200", [OpenApiContent(OrganizationData::class)])]
     )
     private fun create(ctx: Context) {
@@ -61,7 +61,7 @@ object OrganizationController : Router {
         operationId = "updateOrganization",
         summary = "Updates an organization",
         tags = [tag],
-        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = OrganizationUpdate::class)]),
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(OrganizationUpdate::class)]),
         responses = [OpenApiResponse("200", [OpenApiContent(OrganizationData::class)])]
     )
     private fun update(ctx: Context) {
@@ -88,10 +88,10 @@ object OrganizationController : Router {
         operationId = "invite",
         summary = "Sends an email inviting a user to an organization",
         tags = [tag],
-        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = InviteCreate::class)]),
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(InviteCreate::class)]),
         responses = [
             OpenApiResponse("200", [OpenApiContent(UserValidationData::class)]),
-            OpenApiResponse("400", [OpenApiContent(from = Array<ValidationError>::class)])
+            OpenApiResponse("400", [OpenApiContent(Array<ValidationError>::class)])
         ]
     )
     private fun invite(ctx: Context) {
@@ -187,7 +187,7 @@ object OrganizationController : Router {
         summary = "Changes role of a user",
         tags = [tag],
         pathParams = [OpenApiParam(name = "userId", type = Long::class, required = true)],
-        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = UserRoleUpdate::class)]),
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(UserRoleUpdate::class)]),
         responses = [OpenApiResponse("200", [OpenApiContent(OrganizationUserData::class)])]
     )
     private fun updateUserRole(ctx: Context) {

@@ -101,7 +101,7 @@ object UserController : Router {
         operationId = "login",
         summary = "Logs a user in with the specified email and password",
         tags = [tag],
-        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = LoginData::class)]),
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(LoginData::class)]),
         responses = [OpenApiResponse("200", [OpenApiContent(LoginResult::class)])]
     )
     private fun login(ctx: Context) {
@@ -119,7 +119,7 @@ object UserController : Router {
         operationId = "signup",
         summary = "Sends an email validation to the user",
         tags = [tag],
-        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = Signup::class)]),
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(Signup::class)]),
         responses = [OpenApiResponse("200")]
     )
     private fun signup(ctx: Context) {
@@ -184,10 +184,10 @@ object UserController : Router {
         operationId = "updatePassword",
         summary = "Updates the user's password",
         tags = [tag],
-        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = PasswordData::class)]),
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(PasswordData::class)]),
         responses = [
             OpenApiResponse("200"),
-            OpenApiResponse("400", [OpenApiContent(from = Array<ValidationError>::class)])
+            OpenApiResponse("400", [OpenApiContent(Array<ValidationError>::class)])
         ]
     )
     private fun updatePassword(ctx: Context) {
@@ -218,10 +218,10 @@ object UserController : Router {
         operationId = "updateUserInfo",
         summary = "Updates the user's information",
         tags = [tag],
-        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = UserUpdate::class)]),
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(UserUpdate::class)]),
         responses = [
             OpenApiResponse("200", [OpenApiContent(CurrentUserData::class)]),
-            OpenApiResponse("400", [OpenApiContent(from = Array<ValidationError>::class)])
+            OpenApiResponse("400", [OpenApiContent(Array<ValidationError>::class)])
         ]
     )
     private fun updateUserInfo(ctx: Context) {
