@@ -6,7 +6,8 @@ import api.ApiRole.UserNoOrg
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.Context
-import io.javalin.http.HttpCode
+import io.javalin.http.HttpStatus
+import io.javalin.openapi.*
 import model.OrganizationUser
 import model.OrganizationUsers
 import model.preloadOrganizations
@@ -14,101 +15,117 @@ import model.user.User
 import model.user.UserLogin
 import model.user.UserLoginData
 import model.user.Users
+import org.ktapi.model.ValidationError
 import org.ktapi.web.Router
-import org.ktapi.web.documentedHandler
-import org.ktapi.web.jsonValidationErrors
 import service.UserService
 import service.UserService.UserUpdate
 
 object UserController : Router {
     override fun route() {
         path("/user") {
-            get(currentUser, UserNoOrg)
-            patch(updateUserInfo, UserNoOrg)
-            post("/signup", signup, Anyone)
-            post("/verify-email", verifyEmail, Anyone)
-            post("/forgot-password", forgotPassword, Anyone)
-            post("/token-login", tokenLogin, Anyone)
-            post("/login", login, Anyone)
-            post("/update-password", updatePassword, UserNoOrg)
-            post("/logout", logout, UserNoOrg)
-            post("/accept-invite", acceptInvite, Anyone)
+            get(this::currentUser, UserNoOrg)
+            patch(this::updateUserInfo, UserNoOrg)
+            post("/signup", this::signup, Anyone)
+            post("/verify-email", this::verifyEmail, Anyone)
+            post("/forgot-password", this::forgotPassword, Anyone)
+            post("/token-login", this::tokenLogin, Anyone)
+            post("/login", this::login, Anyone)
+            post("/update-password", this::updatePassword, UserNoOrg)
+            post("/logout", this::logout, UserNoOrg)
+            post("/accept-invite", this::acceptInvite, Anyone)
         }
     }
 
     private const val tag = "User"
 
-    private val verifyEmail = documentedHandler {
-        doc("verifyEmail", "Verifies the users email and logs them in", tag) {
-            queryParam<String>("token") { it.required = true }
-            json<UserLoginData>("200")
-        }
-        handler { ctx ->
-            handleUserLogin(ctx, UserService.verifyEmail(ctx.queryParam("token") ?: ""))
-        }
+    @OpenApi(
+        path = "/user/verify-email",
+        methods = [HttpMethod.POST],
+        operationId = "verifyEmail",
+        summary = "Verifies the users email and logs them in",
+        tags = [tag],
+        queryParams = [OpenApiParam(name = "token", type = String::class, required = true)],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(UserLoginData::class)]),
+            OpenApiResponse("400")
+        ]
+    )
+    private fun verifyEmail(ctx: Context) {
+        handleUserLogin(ctx, UserService.verifyEmail(ctx.queryParam("token") ?: ""))
     }
 
     private fun handleUserLogin(ctx: Context, userLogin: UserLogin?) =
         if (userLogin == null) {
-            ctx.status(HttpCode.BAD_REQUEST)
+            ctx.status(HttpStatus.BAD_REQUEST)
         } else {
             ctx.json(userLogin)
         }
 
-    private val forgotPassword = documentedHandler {
-        doc("forgotPassword", "Sends an email to the user to reset their password", tag) {
-            queryParam<String>("email") { it.required = true }
-            result<Unit>("200")
-        }
-        handler { ctx ->
-            UserService.forgotPassword(ctx.queryParam("email"))
-        }
+    @OpenApi(
+        path = "/user/forgot-password",
+        methods = [HttpMethod.POST],
+        operationId = "forgotPassword",
+        summary = "Sends an email to the user to reset their password",
+        tags = [tag],
+        queryParams = [OpenApiParam(name = "email", type = String::class, required = true)],
+        responses = [
+            OpenApiResponse("200")
+        ]
+    )
+    private fun forgotPassword(ctx: Context) {
+        UserService.forgotPassword(ctx.queryParam("email"))
     }
 
-    private val tokenLogin = documentedHandler {
-        doc("tokenLogin", "Logs a user in with the specified token", tag) {
-            queryParam<String>("token") { it.required = true }
-            json<UserLoginData>("200")
-        }
-        handler { ctx ->
-            handleUserLogin(ctx, UserService.tokenLogin(ctx.queryParam("token") ?: ""))
-        }
+    @OpenApi(
+        path = "/user/token-login",
+        methods = [HttpMethod.POST],
+        operationId = "tokenLogin",
+        summary = "Logs a user in with the specified token",
+        tags = [tag],
+        queryParams = [OpenApiParam(name = "token", type = String::class, required = true)],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(UserLoginData::class)]),
+            OpenApiResponse("400")
+        ]
+    )
+    private fun tokenLogin(ctx: Context) {
+        handleUserLogin(ctx, UserService.tokenLogin(ctx.queryParam("token") ?: ""))
     }
 
     data class LoginData(val email: String, val password: String)
-    data class LoginResult(val userLocked: Boolean, val loginFailed: Boolean = true)
+    data class LoginResult(val userLocked: Boolean, val loginFailed: Boolean, val userLogin: UserLoginData?)
 
-    private val login = documentedHandler {
-        doc("login", "Logs a user in with the specified email and password", tag) {
-            body<LoginData>()
-            json<UserLoginData>("200")
-            json<LoginResult>("400")
-        }
-        handler { ctx ->
-            val (email, password) = ctx.bodyFromJson<LoginData>()
-            val (user, userLogin) = UserService.login(email, password)
+    @OpenApi(
+        path = "/user/login",
+        methods = [HttpMethod.POST],
+        operationId = "login",
+        summary = "Logs a user in with the specified email and password",
+        tags = [tag],
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = LoginData::class)]),
+        responses = [OpenApiResponse("200", [OpenApiContent(LoginResult::class)])]
+    )
+    private fun login(ctx: Context) {
+        val (email, password) = ctx.bodyFromJson<LoginData>()
+        val (user, userLogin) = UserService.login(email, password)
 
-            if (userLogin != null) {
-                ctx.json(userLogin)
-            } else {
-                ctx.status(HttpCode.BAD_REQUEST)
-                ctx.json(LoginResult(user?.locked == true))
-            }
-        }
+        ctx.json(LoginResult(userLocked = user?.locked == true, loginFailed = userLogin == null, userLogin = userLogin))
     }
 
     data class Signup(val email: String, val firstName: String? = null, val lastName: String? = null)
 
-    private val signup = documentedHandler {
-        doc("signup", "Sends an email validation to the user", tag) {
-            body<Signup>()
-            result<Unit>("200")
-        }
-        handler { ctx ->
-            val (email, firstName, lastName) = ctx.bodyFromJson<Signup>()
-            UserService.signup(email, firstName ?: "", lastName ?: "")
-            ctx.status(HttpCode.OK)
-        }
+    @OpenApi(
+        path = "/user/signup",
+        methods = [HttpMethod.POST],
+        operationId = "signup",
+        summary = "Sends an email validation to the user",
+        tags = [tag],
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = Signup::class)]),
+        responses = [OpenApiResponse("200")]
+    )
+    private fun signup(ctx: Context) {
+        val (email, firstName, lastName) = ctx.bodyFromJson<Signup>()
+        UserService.signup(email, firstName ?: "", lastName ?: "")
+        ctx.status(HttpStatus.OK)
     }
 
     data class CurrentUserRoleData(@JsonIgnore private val organizationUser: OrganizationUser) {
@@ -128,60 +145,87 @@ object UserController : Router {
         val roles = OrganizationUsers.findByUserId(user.id).preloadOrganizations().map { CurrentUserRoleData(it) }
     }
 
-    private val currentUser = documentedHandler {
-        doc("currentUser", "Loads the current user", tag) {
-            json<CurrentUserData>("200")
-        }
-        handler { ctx ->
-            when (val user = Users.findById(ctx.userIdOrNull)) {
-                null -> ctx.status(HttpCode.BAD_REQUEST)
-                else -> ctx.json(CurrentUserData(user))
-            }
+    @OpenApi(
+        path = "/user",
+        methods = [HttpMethod.GET],
+        operationId = "currentUser",
+        summary = "Loads the current user",
+        tags = [tag],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(CurrentUserData::class)]),
+            OpenApiResponse("400")
+        ]
+    )
+    private fun currentUser(ctx: Context) {
+        when (val user = Users.findById(ctx.userIdOrNull)) {
+            null -> ctx.status(HttpStatus.BAD_REQUEST)
+            else -> ctx.json(CurrentUserData(user))
         }
     }
 
-    private val logout = documentedHandler {
-        doc("logout", "Logs the user out", tag) {
-            result<Unit>("200")
-        }
-        handler { ctx ->
-            ctx.userLoginOrNull?.invalidate()
-            ctx.status(HttpCode.OK)
-        }
+    @OpenApi(
+        path = "/user/logout",
+        methods = [HttpMethod.POST],
+        operationId = "logout",
+        summary = "Logs the user out",
+        tags = [tag],
+        responses = [OpenApiResponse("200")]
+    )
+    private fun logout(ctx: Context) {
+        ctx.userLoginOrNull?.invalidate()
+        ctx.status(HttpStatus.OK)
     }
 
     data class PasswordData(val password: String)
 
-    private val updatePassword = documentedHandler {
-        doc("updatePassword", "Updates the user's password", tag) {
-            body<PasswordData>()
-            result<Unit>("200")
-            jsonValidationErrors()
-        }
-        handler { ctx ->
-            val (password) = ctx.bodyFromJson<PasswordData>()
-            UserService.updatePassword(ctx.userId, password)
-        }
+    @OpenApi(
+        path = "/user/update-password",
+        methods = [HttpMethod.POST],
+        operationId = "updatePassword",
+        summary = "Updates the user's password",
+        tags = [tag],
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = PasswordData::class)]),
+        responses = [
+            OpenApiResponse("200"),
+            OpenApiResponse("400", [OpenApiContent(from = Array<ValidationError>::class)])
+        ]
+    )
+    private fun updatePassword(ctx: Context) {
+        val (password) = ctx.bodyFromJson<PasswordData>()
+        UserService.updatePassword(ctx.userId, password)
+        ctx.status(HttpStatus.OK)
     }
 
-    private val acceptInvite = documentedHandler {
-        doc("acceptInvite", "Accepts an invite to an organization with the given token", tag) {
-            queryParam<String>("token") { it.required = true }
-            json<UserLoginData>("200")
-        }
-        handler { ctx ->
-            handleUserLogin(ctx, UserService.acceptInvite(ctx.userLoginOrNull, ctx.queryParam("token") ?: ""))
-        }
+    @OpenApi(
+        path = "/user/accept-invite",
+        methods = [HttpMethod.POST],
+        operationId = "acceptInvite",
+        summary = "Accepts an invite to an organization with the given token",
+        tags = [tag],
+        queryParams = [OpenApiParam(name = "token", type = String::class, required = true)],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(UserLoginData::class)]),
+            OpenApiResponse("400")
+        ]
+    )
+    private fun acceptInvite(ctx: Context) {
+        handleUserLogin(ctx, UserService.acceptInvite(ctx.userLoginOrNull, ctx.queryParam("token") ?: ""))
     }
 
-    private val updateUserInfo = documentedHandler {
-        doc("updateUserInfo", "Updates the user's information", tag) {
-            body<UserUpdate>()
-            json<CurrentUserData>("200")
-        }
-        handler { ctx ->
-            UserService.update(ctx.user, ctx.bodyFromJson())
-            ctx.json(CurrentUserData(ctx.user))
-        }
+    @OpenApi(
+        path = "/user",
+        methods = [HttpMethod.PATCH],
+        operationId = "updateUserInfo",
+        summary = "Updates the user's information",
+        tags = [tag],
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = UserUpdate::class)]),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(CurrentUserData::class)]),
+            OpenApiResponse("400", [OpenApiContent(from = Array<ValidationError>::class)])
+        ]
+    )
+    private fun updateUserInfo(ctx: Context) {
+        UserService.update(ctx.user, ctx.bodyFromJson())
+        ctx.json(CurrentUserData(ctx.user))
     }
 }

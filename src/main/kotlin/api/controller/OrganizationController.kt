@@ -5,14 +5,15 @@ import api.bodyFromJson
 import api.organizationId
 import api.user
 import api.userId
-import com.fasterxml.jackson.annotation.JsonIgnore
 import io.javalin.apibuilder.ApiBuilder.*
-import io.javalin.http.HttpCode
+import io.javalin.http.Context
+import io.javalin.http.HttpStatus
+import io.javalin.openapi.*
 import model.*
 import model.user.UserValidationData
 import model.user.UserValidations
+import org.ktapi.model.ValidationError
 import org.ktapi.web.Router
-import org.ktapi.web.documentedHandler
 import org.ktapi.web.idPathParam
 import service.OrganizationService
 import service.OrganizationService.OrganizationCreate
@@ -21,95 +22,118 @@ import service.OrganizationService.OrganizationUpdate
 object OrganizationController : Router {
     override fun route() {
         path("/organization") {
-            get(show, User)
-            post(create, UserNoOrg)
-            patch(update, Owner)
-            post("/invite", invite, Admin)
+            get(this::show, User)
+            post(this::create, UserNoOrg)
+            patch(this::update, Owner)
+            post("/invites", this::invite, Admin)
             path("/invites") {
-                get(invites, Admin)
-                delete("/{inviteId}", removeInvite, Admin)
+                get(this::invites, Admin)
+                delete("/{inviteId}", this::removeInvite, Admin)
             }
-            get("/users", users, User)
-            path("/users/{userId}") {
-                delete(removeUser, Admin)
-                patch(updateUserRole, Admin)
+            path("/users") {
+                get(this::users, User)
+                path("/{userId}") {
+                    delete(this::removeUser, Admin)
+                    patch(this::updateUserRole, Admin)
+                }
             }
         }
     }
 
     private const val tag = "Organization"
 
-    private val create = documentedHandler {
-        doc("create", "Creates a new organization for the logged in user", tag) {
-            body<OrganizationCreate>()
-            json<OrganizationData>("200")
-        }
-        handler { ctx ->
-            ctx.json(OrganizationService.create(ctx.bodyFromJson(), ctx.userId))
-        }
+    @OpenApi(
+        path = "/organization",
+        methods = [HttpMethod.POST],
+        operationId = "createOrganization",
+        summary = "Creates a new organization for the logged in user",
+        tags = [tag],
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = OrganizationCreate::class)]),
+        responses = [OpenApiResponse("200", [OpenApiContent(OrganizationData::class)])]
+    )
+    private fun create(ctx: Context) {
+        ctx.json(OrganizationService.create(ctx.bodyFromJson(), ctx.userId))
     }
 
-    private val update = documentedHandler {
-        doc("update", "Updates an organization", tag) {
-            body<OrganizationUpdate>()
-            json<OrganizationData>("200")
-        }
-        handler { ctx ->
-            ctx.json(OrganizationService.update(ctx.organizationId, ctx.bodyFromJson()))
-        }
+    @OpenApi(
+        path = "/organization",
+        methods = [HttpMethod.PATCH],
+        operationId = "updateOrganization",
+        summary = "Updates an organization",
+        tags = [tag],
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = OrganizationUpdate::class)]),
+        responses = [OpenApiResponse("200", [OpenApiContent(OrganizationData::class)])]
+    )
+    private fun update(ctx: Context) {
+        ctx.json(OrganizationService.update(ctx.organizationId, ctx.bodyFromJson()))
     }
 
-    private val show = documentedHandler {
-        doc("show", "Returns an organization", tag) {
-            json<OrganizationData>("200")
-        }
-        handler { ctx ->
-            ctx.json(Organizations.findById(ctx.organizationId)!!)
-        }
+    @OpenApi(
+        path = "/organization",
+        methods = [HttpMethod.GET],
+        operationId = "showOrganization",
+        summary = "Returns an organization",
+        tags = [tag],
+        responses = [OpenApiResponse("200", [OpenApiContent(OrganizationData::class)])]
+    )
+    private fun show(ctx: Context) {
+        ctx.json(Organizations.findById(ctx.organizationId)!!)
     }
 
     data class InviteCreate(val role: UserRole, val email: String, val firstName: String, val lastName: String)
 
-    private val invite = documentedHandler {
-        doc("invite", "Sends an email inviting a user to an organization", tag) {
-            body<InviteCreate>()
-            json<UserValidationData>("200")
-        }
-        handler { ctx ->
-            val invite = ctx.bodyFromJson<InviteCreate>()
-            val validation = OrganizationService.inviteUser(
-                orgId = ctx.organizationId,
-                invitingUser = ctx.user,
-                role = invite.role,
-                email = invite.email,
-                firstName = invite.firstName,
-                lastName = invite.lastName
-            )
-            ctx.json(validation)
-        }
+    @OpenApi(
+        path = "/organization/invites",
+        methods = [HttpMethod.POST],
+        operationId = "invite",
+        summary = "Sends an email inviting a user to an organization",
+        tags = [tag],
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = InviteCreate::class)]),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(UserValidationData::class)]),
+            OpenApiResponse("400", [OpenApiContent(from = Array<ValidationError>::class)])
+        ]
+    )
+    private fun invite(ctx: Context) {
+        val invite = ctx.bodyFromJson<InviteCreate>()
+        val validation = OrganizationService.inviteUser(
+            orgId = ctx.organizationId,
+            invitingUser = ctx.user,
+            role = invite.role,
+            email = invite.email,
+            firstName = invite.firstName,
+            lastName = invite.lastName
+        )
+        ctx.json(validation)
     }
 
-    private val invites = documentedHandler {
-        doc("invites", "Returns invites for an organization", tag) {
-            jsonArray<UserValidationData>("200")
-        }
-        handler { ctx ->
-            ctx.json(UserValidations.findByOrganization(ctx.organizationId))
-        }
+    @OpenApi(
+        path = "/organization/invites",
+        methods = [HttpMethod.GET],
+        operationId = "invites",
+        summary = "Returns invites for an organization",
+        tags = [tag],
+        responses = [OpenApiResponse("200", [OpenApiContent(Array<UserValidationData>::class)])]
+    )
+    private fun invites(ctx: Context) {
+        ctx.json(UserValidations.findByOrganization(ctx.organizationId))
     }
 
-    private val removeInvite = documentedHandler {
-        doc("removeInvite", "Removes an invite to a user", tag) {
-            idPathParam("inviteId")
-            json<Unit>("200")
-        }
-        handler { ctx ->
-            OrganizationService.removeInvite(ctx.organizationId, ctx.idPathParam("inviteId"))
-            ctx.status(HttpCode.OK)
-        }
+    @OpenApi(
+        path = "/organization/invites/{inviteId}",
+        methods = [HttpMethod.DELETE],
+        operationId = "removeInvite",
+        summary = "Removes an invite to a user",
+        tags = [tag],
+        pathParams = [OpenApiParam(name = "inviteId", type = Long::class, required = true)],
+        responses = [OpenApiResponse("200")]
+    )
+    private fun removeInvite(ctx: Context) {
+        OrganizationService.removeInvite(ctx.organizationId, ctx.idPathParam("inviteId"))
+        ctx.status(HttpStatus.OK)
     }
 
-    data class OrganizationUserData(@JsonIgnore val orgUser: OrganizationUser) {
+    data class OrganizationUserData(private val orgUser: OrganizationUser) {
         val id = orgUser.id
         val userId = orgUser.userId
         val firstName = orgUser.user.firstName
@@ -119,50 +143,67 @@ object OrganizationController : Router {
         val role = orgUser.role
     }
 
-    private val users = documentedHandler {
-        doc("users", "Returns users for an organization", tag) {
-            jsonArray<OrganizationUserData>("200")
-        }
-        handler { ctx ->
-            val users = OrganizationUsers.findByOrganizationId(ctx.organizationId)
-                .preloadUsers()
-                .map { OrganizationUserData(it) }
-            ctx.json(users)
-        }
+    @OpenApi(
+        path = "/organization/users",
+        methods = [HttpMethod.GET],
+        operationId = "organizationUsers",
+        summary = "Returns users for an organization",
+        tags = [tag],
+        responses = [OpenApiResponse("200", [OpenApiContent(Array<OrganizationUserData>::class)])]
+    )
+    private fun users(ctx: Context) {
+        val users = OrganizationUsers.findByOrganizationId(ctx.organizationId)
+            .preloadUsers()
+            .map { OrganizationUserData(it) }
+
+        ctx.json(users)
     }
 
-    private val removeUser = documentedHandler {
-        doc("removeUser", "Removes a user from an organization", tag) {
-            idPathParam("userId")
-            json<Unit>("200")
-        }
-        handler { ctx ->
-            OrganizationService.removeUser(
-                orgId = ctx.organizationId,
-                userId = ctx.idPathParam("userId"),
-                currentUserId = ctx.userId
-            )
-            ctx.status(HttpCode.OK)
-        }
+    @OpenApi(
+        path = "/organization/users/{userId}",
+        methods = [HttpMethod.DELETE],
+        operationId = "removeUser",
+        summary = "Removes a user from an organization",
+        tags = [tag],
+        pathParams = [OpenApiParam(name = "userId", type = Long::class, required = true)],
+        responses = [OpenApiResponse("200")]
+    )
+    private fun removeUser(ctx: Context) {
+        OrganizationService.removeUser(
+            orgId = ctx.organizationId,
+            userId = ctx.idPathParam("userId"),
+            currentUserId = ctx.userId
+        )
+
+        ctx.status(HttpStatus.OK)
     }
 
     data class UserRoleUpdate(val role: UserRole)
 
-    private val updateUserRole = documentedHandler {
-        doc("updateUserRole", "Changes role of a user", tag) {
-            idPathParam("userId")
-            body<UserRoleUpdate>()
-            json<Boolean>("200")
-        }
-        handler { ctx ->
-            val update = ctx.bodyFromJson<UserRoleUpdate>()
-            OrganizationService.updateRole(
-                orgId = ctx.organizationId,
-                userId = ctx.idPathParam("userId"),
-                role = update.role,
-                currentUserId = ctx.userId
-            )
-            ctx.status(HttpCode.OK)
+    @OpenApi(
+        path = "/organization/users/{userId}",
+        methods = [HttpMethod.PATCH],
+        operationId = "updateUserRole",
+        summary = "Changes role of a user",
+        tags = [tag],
+        pathParams = [OpenApiParam(name = "userId", type = Long::class, required = true)],
+        requestBody = OpenApiRequestBody(content = [OpenApiContent(from = UserRoleUpdate::class)]),
+        responses = [OpenApiResponse("200", [OpenApiContent(OrganizationUserData::class)])]
+    )
+    private fun updateUserRole(ctx: Context) {
+        val (role) = ctx.bodyFromJson<UserRoleUpdate>()
+
+        val orgUser = OrganizationService.updateRole(
+            orgId = ctx.organizationId,
+            userId = ctx.idPathParam("userId"),
+            role = role,
+            currentUserId = ctx.userId
+        )
+
+        if (orgUser == null) {
+            ctx.status(HttpStatus.OK)
+        } else {
+            ctx.json(OrganizationUserData(orgUser))
         }
     }
 }

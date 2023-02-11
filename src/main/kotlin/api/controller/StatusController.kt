@@ -1,12 +1,16 @@
 package api.controller
 
-import api.ApiRole.Anyone
+import api.ApiRole
 import io.javalin.apibuilder.ApiBuilder.get
-import io.javalin.http.HttpCode
+import io.javalin.http.Context
+import io.javalin.http.HttpStatus
+import io.javalin.openapi.HttpMethod
+import io.javalin.openapi.OpenApi
+import io.javalin.openapi.OpenApiContent
+import io.javalin.openapi.OpenApiResponse
 import org.ktapi.Environment
 import org.ktapi.db.Database
 import org.ktapi.web.Router
-import org.ktapi.web.documentedHandler
 
 data class StatusResult(
     val up: Boolean,
@@ -15,30 +19,36 @@ data class StatusResult(
 )
 
 object StatusController : Router {
-    override fun route() {
-        get("/status", status, Anyone)
-    }
-
     private const val detailsKey = ""
     private const val tag = "System"
 
-    private val status = documentedHandler {
-        doc("status", "Returns status of API", tag) {
-            json<StatusResult>("200")
-        }
-        handler { ctx ->
-            val showDetails = detailsKey.isBlank() || ctx.queryParam("details") == detailsKey
-            val statuses = doStatusCheck()
-            val up = statuses.all { it.value }
+    override fun route() {
+        get("/status", this::status, ApiRole.Anyone)
+    }
 
-            val result = when (showDetails) {
-                true -> StatusResult(up, statuses, Environment.version)
-                else -> StatusResult(up)
-            }
+    @OpenApi(
+        path = "/status",
+        methods = [HttpMethod.GET],
+        operationId = "status",
+        summary = "Returns the status of the API",
+        tags = [tag],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(StatusResult::class)]),
+            OpenApiResponse("503")
+        ]
+    )
+    private fun status(ctx: Context) {
+        val showDetails = detailsKey.isBlank() || ctx.queryParam("details") == detailsKey
+        val statuses = doStatusCheck()
+        val up = statuses.all { it.value }
 
-            ctx.status(if (result.up) HttpCode.OK else HttpCode.SERVICE_UNAVAILABLE)
-            ctx.json(result)
+        val result = when (showDetails) {
+            true -> StatusResult(up, statuses, Environment.version)
+            else -> StatusResult(up)
         }
+
+        ctx.status(if (result.up) HttpStatus.OK else HttpStatus.SERVICE_UNAVAILABLE)
+        ctx.json(result)
     }
 
     private fun doStatusCheck() = mapOf(

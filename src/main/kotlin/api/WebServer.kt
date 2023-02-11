@@ -1,9 +1,9 @@
 package api
 
-import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
 import io.javalin.http.Handler
-import io.javalin.http.HttpCode
+import io.javalin.http.HttpStatus
+import io.javalin.security.RouteRole
 import model.UserRole
 import org.ktapi.web.Javalin
 import service.UserService
@@ -16,20 +16,20 @@ enum class ApiRole : RouteRole {
     val userRole: UserRole? by lazy { UserRole.values().find { it.name == name } }
 }
 
-object AccessManager : io.javalin.core.security.AccessManager {
-    override fun manage(handler: Handler, ctx: Context, permittedRoles: MutableSet<RouteRole>) {
+object AccessManager : io.javalin.security.AccessManager {
+    override fun manage(handler: Handler, ctx: Context, routeRoles: Set<RouteRole>) {
         when {
             ctx.path().startsWith("/employee/") -> {
-                if (ctx.user.employee) handler.handle(ctx) else ctx.status(HttpCode.NOT_FOUND)
+                if (ctx.userOrNull?.employee == true) handler.handle(ctx) else ctx.status(HttpStatus.NOT_FOUND)
             }
 
-            permittedRoles.contains(ApiRole.Anyone) -> handler.handle(ctx)
-            permittedRoles.contains(ApiRole.UserNoOrg) && ctx.userLoginOrNull != null -> handler.handle(ctx)
-            userHasRole(ctx, permittedRoles) -> handler.handle(ctx)
-            else -> ctx.status(HttpCode.UNAUTHORIZED).json("Unauthorized")
+            routeRoles.contains(ApiRole.Anyone) -> handler.handle(ctx)
+            routeRoles.contains(ApiRole.UserNoOrg) && ctx.userLoginOrNull != null -> handler.handle(ctx)
+            userHasRole(ctx, routeRoles) -> handler.handle(ctx)
+            else -> ctx.status(HttpStatus.UNAUTHORIZED).json("Unauthorized")
         }
     }
 
-    private fun userHasRole(ctx: Context, roles: MutableSet<RouteRole>) =
+    private fun userHasRole(ctx: Context, roles: Set<RouteRole>) =
         UserService.hasPermission(ctx.organizationId, ctx.userId, roles.mapNotNull { (it as ApiRole).userRole })
 }

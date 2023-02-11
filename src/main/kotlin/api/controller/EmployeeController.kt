@@ -5,21 +5,25 @@ import api.userOrNull
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
+import io.javalin.http.Context
+import io.javalin.openapi.HttpMethod
+import io.javalin.openapi.OpenApi
+import io.javalin.openapi.OpenApiContent
+import io.javalin.openapi.OpenApiResponse
 import model.OrganizationData
 import model.OrganizationUser
 import model.Organizations
 import model.user.*
 import org.ktapi.model.findAll
 import org.ktapi.web.Router
-import org.ktapi.web.documentedHandler
 
 object EmployeeController : Router {
     override fun route() {
         path("/employee") {
-            get(isEmployee, ApiRole.Anyone)
-            get("/organizations", organizations)
-            get("/users", users)
-            get("/user-logins", userLogins)
+            get(this::isEmployee, ApiRole.Anyone)
+            get("/organizations", this::organizations)
+            get("/users", this::users)
+            get("/user-logins", this::userLogins)
         }
     }
 
@@ -27,18 +31,28 @@ object EmployeeController : Router {
 
     data class IsEmployee(val value: Boolean)
 
-    private val isEmployee = documentedHandler {
-        doc("isEmployee", "Returns true if user is employee", tag) {
-            json<Boolean>("200")
-        }
-        handler { ctx -> ctx.json(ctx.userOrNull?.employee == true) }
+    @OpenApi(
+        path = "/employee",
+        methods = [HttpMethod.GET],
+        operationId = "isEmployee",
+        summary = "Returns true if user is employee",
+        tags = [tag],
+        responses = [OpenApiResponse("200", [OpenApiContent(Boolean::class)])]
+    )
+    private fun isEmployee(ctx: Context) {
+        ctx.json(ctx.userOrNull?.employee == true)
     }
 
-    private val organizations = documentedHandler {
-        doc("organizations", "Returns all organization", tag) {
-            jsonArray<OrganizationData>("200")
-        }
-        handler { ctx -> ctx.json(Organizations.findAll()) }
+    @OpenApi(
+        path = "/employee/organizations",
+        methods = [HttpMethod.GET],
+        operationId = "employeeOrganizations",
+        summary = "Returns all organization",
+        tags = [tag],
+        responses = [OpenApiResponse("200", [OpenApiContent(Array<OrganizationData>::class)])]
+    )
+    private fun organizations(ctx: Context) {
+        ctx.json(Organizations.findAll())
     }
 
     data class UserRoleData(@JsonIgnore private val orgUser: OrganizationUser) {
@@ -62,11 +76,16 @@ object EmployeeController : Router {
         val roles = user.roles.map { UserRoleData(it) }
     }
 
-    private val users = documentedHandler {
-        doc("users", "Returns all users", tag) {
-            jsonArray<UserDataAll>("200")
-        }
-        handler { ctx -> ctx.json(Users.findAll().preloadRoles().map { UserDataAll(it) }) }
+    @OpenApi(
+        path = "/employee/users",
+        methods = [HttpMethod.GET],
+        operationId = "employeeUsers",
+        summary = "Returns all users",
+        tags = [tag],
+        responses = [OpenApiResponse("200", [OpenApiContent(Array<UserDataAll>::class)])]
+    )
+    private fun users(ctx: Context) {
+        ctx.json(Users.findAll().preloadRoles().map { UserDataAll(it) })
     }
 
     data class UserLoginData(@JsonIgnore private val userLogin: UserLogin) {
@@ -80,10 +99,15 @@ object EmployeeController : Router {
         val employee = userLogin.user.employee
     }
 
-    private val userLogins = documentedHandler {
-        doc("userLogins", "Returns user logins", tag) {
-            jsonArray<UserLoginData>("200")
-        }
-        handler { ctx -> ctx.json(UserLogins.findRecent().preloadUsers().map { UserLoginData(it) }) }
+    @OpenApi(
+        path = "/employee/user-logins",
+        methods = [HttpMethod.GET],
+        operationId = "userLogins",
+        summary = "Returns user logins",
+        tags = [tag],
+        responses = [OpenApiResponse("200", [OpenApiContent(Array<UserLoginData>::class)])]
+    )
+    private fun userLogins(ctx: Context) {
+        ctx.json(UserLogins.findRecent().preloadUsers().map { UserLoginData(it) })
     }
 }

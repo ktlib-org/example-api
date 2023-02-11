@@ -67,13 +67,15 @@ object OrganizationService {
         }
     }
 
-    fun updateRole(orgId: Long, userId: Long, role: UserRole, currentUserId: Long) {
+    fun updateRole(orgId: Long, userId: Long, role: UserRole, currentUserId: Long): OrganizationUser? {
         val orgUser = OrganizationUsers.findByUserIdAndOrganizationId(userId, orgId)
         val currentUserRole = OrganizationUsers.findByUserIdAndOrganizationId(currentUserId, orgId)
 
         if (canUpdateRole(currentUserRole, orgUser, role)) {
             OrganizationUsers.updateRole(orgUser!!.id, role)
         }
+
+        return OrganizationUsers.findById(orgUser?.id)
     }
 
     private fun canUpdateRole(currentUser: OrganizationUser?, orgUser: OrganizationUser?, newRole: UserRole): Boolean {
