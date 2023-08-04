@@ -58,11 +58,11 @@ interface User : EntityWithDates<User>, UserData {
         get() = "$firstName $lastName".trim()
 
     val roles: List<OrganizationUser>
-        get() = lazyLoad("roles") { OrganizationUsers.findByUserId(id) }!!
+        get() = lazyLoad("roles") { OrganizationUsers.findByUserId(id) }
 }
 
-fun List<User>.preloadRoles() = preload(
-    this, "roles", "id", "userId", OrganizationUsers::findByUserIds
+fun List<User>.preloadRoles() = preloadOneToMany(
+    this, "roles", { OrganizationUsers.findByUserIds(ids()) }, { one, many -> many.filter { it.userId == one.id } }
 )
 
 object Users : EntityWithDatesTable<User>("user") {
@@ -96,6 +96,7 @@ object Users : EntityWithDatesTable<User>("user") {
                 }
                 findByEmail(lowerEmail)
             }
+
             else -> null
         }
     }

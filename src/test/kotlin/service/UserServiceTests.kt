@@ -5,14 +5,14 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
 import io.mockk.*
-import model.Organizations
 import model.OrganizationUsers
+import model.Organizations
 import model.UserRole
 import model.user.UserLogins
-import model.user.Users
 import model.user.UserValidations
+import model.user.Users
 import org.ktapi.Encryption
-import org.ktapi.daysAgo
+import org.ktapi.hoursAgo
 import org.ktapi.model.ValidationException
 import org.ktapi.test.DbStringSpec
 import java.time.LocalDateTime
@@ -248,7 +248,7 @@ class UserServiceTests : DbStringSpec() {
 
         "accept invite doesn't work with outdated invite" {
             val validation = UserValidations.createForInvite(1, UserRole.Admin, "my@email.com")
-            UserValidations.setCreatedAt(validation.id, 14.daysAgo())
+            UserValidations.setCreatedAt(validation.id, (14 * 24).hoursAgo())
 
             val result = UserService.acceptInvite(null, validation.token)
 

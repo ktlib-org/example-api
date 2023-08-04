@@ -2,7 +2,6 @@ package model.user
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import model.UserRole
-import org.ktapi.daysAgo
 import org.ktapi.email.EmailData
 import org.ktapi.hoursAgo
 import org.ktapi.model.*
@@ -48,7 +47,7 @@ interface UserValidation : EntityWithDates<UserValidation>, UserValidationData {
     val isValid: Boolean
         get() {
             val cutoff = when {
-                isInvite -> 7.daysAgo()
+                isInvite -> (7 * 24).hoursAgo()
                 else -> 24.hoursAgo()
             }
             return createdAt.isAfter(cutoff)

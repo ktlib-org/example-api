@@ -24,15 +24,24 @@ interface OrganizationUser : EntityWithDates<OrganizationUser>, OrganizationUser
     companion object : Entity.Factory<OrganizationUser>()
 
     val user: User
-        get() = lazyLoad(Users, userId)!!
+        get() = lazyLoad("user") { Users.findById(userId) }
 
     val organization: Organization
-        get() = lazyLoad(Organizations, organizationId)!!
+        get() = lazyLoad("organization") { Organizations.findById(organizationId) }
 }
 
-fun List<OrganizationUser>.preloadOrganizations() = preload(this, Organizations, "organizationId")
+fun List<OrganizationUser>.preloadOrganizations() = preloadOneToOne(
+    this,
+    "organization",
+    { Organizations.findByIds(map { it.organizationId }) },
+    { one, many -> many.find { one.organizationId == it.id }!! }
+)
 
-fun List<OrganizationUser>.preloadUsers() = preload(this, Users, "userId")
+fun List<OrganizationUser>.preloadUsers() = preloadOneToOne(
+    this,
+    "user",
+    { Users.findByIds(map { it.userId }) },
+    { one, many -> many.find { one.userId == it.id }!! })
 
 object OrganizationUsers : EntityWithDatesTable<OrganizationUser>("organization_user") {
     val userId = long("user_id").bindTo { it.userId }

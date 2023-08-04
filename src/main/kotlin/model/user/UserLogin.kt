@@ -28,10 +28,14 @@ interface UserLogin : EntityWithDates<UserLogin>, UserLoginData {
     }
 
     val user: User
-        get() = lazyLoad(Users, userId)!!
+        get() = lazyLoad("user") { Users.findById(userId) }
 }
 
-fun List<UserLogin>.preloadUsers() = preload(this, Users, "userId")
+fun List<UserLogin>.preloadUsers() = preloadOneToOne(
+    this,
+    "user",
+    { Users.findByIds(map { it.userId }) },
+    { one, many -> many.find { one.userId == it.id }!! })
 
 object UserLogins : EntityWithDatesTable<UserLogin>("user_login") {
     val token = varchar("token").bindTo { it.token }
