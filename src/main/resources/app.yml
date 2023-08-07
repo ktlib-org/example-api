@@ -16,3 +16,4 @@ email:
 db:
   type: Postgres
   driver: org.postgresql.Driver
+  poolSize: 50
