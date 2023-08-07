@@ -6,3 +6,4 @@ db:
   username: local
   password: local
   jdbcUrl: jdbc:postgresql://localhost:5444/app
+  poolSize: 50
