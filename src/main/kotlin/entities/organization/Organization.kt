@@ -17,7 +17,7 @@ interface Organization : EntityWithDates<Organization>, OrganizationData {
     companion object : Entity.Factory<Organization>()
 
     fun validate() = validate {
-        field("name") { notBlank() }
+        field(::name) { notBlank() }
     }
 }
 

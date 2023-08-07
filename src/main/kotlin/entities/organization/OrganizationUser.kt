@@ -24,10 +24,10 @@ interface OrganizationUser : EntityWithDates<OrganizationUser>, OrganizationUser
     companion object : Entity.Factory<OrganizationUser>()
 
     val user: User
-        get() = lazyLoad("user") { Users.findById(userId) }
+        get() = lazyLoad(::user) { Users.findById(userId) }
 
     val organization: Organization
-        get() = lazyLoad("organization") { Organizations.findById(organizationId) }
+        get() = lazyLoad(::organization) { Organizations.findById(organizationId) }
 
     fun canUpdateRole(orgUser: OrganizationUser?, newRole: UserRole) =
         orgUser != null
@@ -37,16 +37,14 @@ interface OrganizationUser : EntityWithDates<OrganizationUser>, OrganizationUser
     fun hasPermission(acceptableRoles: List<UserRole>) = acceptableRoles.any { role >= it }
 }
 
-fun List<OrganizationUser>.preloadOrganizations() = preloadOneToOne(
-    this,
-    "organization",
+fun List<OrganizationUser>.preloadOrganizations() = preload(
+    OrganizationUser::organization,
     { Organizations.findByIds(map { it.organizationId }) },
     { one, many -> many.find { one.organizationId == it.id }!! }
 )
 
-fun List<OrganizationUser>.preloadUsers() = preloadOneToOne(
-    this,
-    "user",
+fun List<OrganizationUser>.preloadUsers() = preload(
+    OrganizationUser::user,
     { Users.findByIds(map { it.userId }) },
     { one, many -> many.find { one.userId == it.id }!! })
 
