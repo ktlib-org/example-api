@@ -62,7 +62,7 @@ plugins {
 }
 
 application {
-    mainClass.set("api.AppKt")
+    mainClass.set("web.AppKt")
 }
 
 docker {
