@@ -1,6 +1,11 @@
+application:
+  validUserEmailDomains:
+    - test.com
+
 web:
   serverPort: 8080
-  url: http://localhost:8080
+  appUrl: http://localhost:3000
+  apiUrl: http://localhost:8080
 
 db:
   username: local

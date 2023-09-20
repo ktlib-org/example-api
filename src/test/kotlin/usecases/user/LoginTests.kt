@@ -1,42 +1,71 @@
 package usecases.user
 
+import entities.user.User
 import entities.user.Users
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.ktapi.test.DbStringSpec
+import entities.user.Users.update
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.verify
+import org.ktlib.Encryption
+import usecases.UseCaseContext
+import usecases.UseCaseSpec
 
-class LoginTests : DbStringSpec() {
+class LoginTests : UseCaseSpec() {
+    private lateinit var user: User
+
     init {
+        objectMocks(Encryption)
+
         "login" {
-            var testUser = Users.findById(1)!!
-            testUser.passwordFailure()
+            every { Encryption.passwordMatches("test", user.password) } returns true
 
-            val result = Login.login(testUser.email, "test")
+            val result = execute(user.email, "test")
 
-            testUser = Users.findById(testUser.id)!!
-            result.first shouldNotBe null
-            result.second shouldNotBe null
-            testUser.passwordFailures shouldBe 0
+            result.userLocked shouldBe false
+            result.loginFailed shouldBe false
+            result.userLogin shouldNotBe null
+            Users.findById(user.id)?.passwordFailures shouldBe 0
         }
 
         "login failed" {
-            val testUser = Users.findById(1)!!
+            every { Encryption.passwordMatches(any(), any()) } returns false
 
-            val result = Login.login(testUser.email, "bad")
+            val result = execute(user.email, "bad")
 
-            result.first shouldNotBe null
-            result.first?.locked shouldBe false
-            result.second shouldBe null
+            result.loginFailed shouldBe true
+            result.userLocked shouldBe false
+            result.userLogin shouldBe null
         }
 
         "login causes locked account" {
-            val testUser = Users.findById(1)!!
+            every { Encryption.passwordMatches(any(), any()) } returns false
+            user.apply { passwordFailures = 2 }.update()
 
-            Login.login(testUser.email, "bad")
-            Login.login(testUser.email, "bad")
-            val result = Login.login(testUser.email, "bad")
+            val result = execute(user.email, "bad")
 
-            result.first?.locked shouldBe true
+            result.loginFailed shouldBe true
+            result.userLocked shouldBe true
+            result.userLogin shouldBe null
+        }
+
+        "should not attempt login if user already locked" {
+            every { Encryption.passwordMatches(any(), any()) } returns false
+            user.apply { locked = true }.update()
+
+            val result = execute(user.email, "bad")
+
+            result.loginFailed shouldBe true
+            result.userLocked shouldBe true
+            result.userLogin shouldBe null
+            verify(exactly = 0) { Encryption.passwordMatches(any(), any()) }
+        }
+
+        beforeEach {
+            user = Users.create("myuser@email.com", "testPassword")!!
         }
     }
+
+    private fun execute(email: String, password: String) =
+        useCase(Login::class, UseCaseContext(input = Login.Input(email, password))).execute()
 }

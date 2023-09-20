@@ -4,22 +4,29 @@ import entities.organization.OrganizationUsers
 import entities.user.UserLogin
 import entities.user.UserLogins
 import entities.user.UserValidations
+import entities.user.UserValidations.delete
 import entities.user.Users
-import org.ktapi.db.transaction
-import org.ktapi.slack.Slack
-import org.ktapi.slack.WebhookMessage
+import org.ktlib.entities.ValidationError
+import org.ktlib.entities.ValidationErrors
+import org.ktlib.entities.ValidationException
+import org.ktlib.entities.transaction
+import org.ktlib.slack.Slack
+import org.ktlib.slack.WebhookMessage
+import usecases.Role
+import usecases.UseCase
 
-object AcceptInvite {
-    fun acceptInvite(userLogin: UserLogin?, token: String) = transaction {
-        val validation = UserValidations.findByToken(token)
+class AcceptInvite : UseCase<AcceptInvite.Input, UserLogin>(Role.Anyone) {
+    data class Input(val token: String)
+
+    override fun doExecute() = transaction {
+        val validation = UserValidations.findByToken(input.token)
 
         validation?.delete()
 
         if (validation?.isValid != true) {
-            null
+            throw ValidationException(ValidationErrors(mutableListOf(ValidationError("token", "Invalid token."))))
         } else {
-            var userId =
-                userLogin?.userId ?: Users.findByEmail(validation.email)?.id
+            var userId = currentUserIdOrNull ?: Users.findByEmail(validation.email)?.id
 
             if (userId == null) {
                 userId = Users.create(validation)!!.id
@@ -34,7 +41,7 @@ object AcceptInvite {
                 OrganizationUsers.updateRole(currentRole.id, validation.role!!)
             }
 
-            userLogin ?: UserLogins.create(userId)
+            currentUserLoginOrNull ?: UserLogins.create(userId)
         }
     }
 }

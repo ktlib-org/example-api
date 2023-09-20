@@ -2,14 +2,18 @@ package usecases.organization
 
 import entities.organization.Organization
 import entities.organization.Organizations
-import org.ktapi.entities.populateFrom
+import entities.organization.Organizations.update
+import org.ktlib.entities.populateFrom
+import usecases.DataMap
+import usecases.Role
+import usecases.UseCase
 
-object UpdateOrganization {
+class UpdateOrganization : UseCase<DataMap, Organization>(Role.Admin) {
     data class UpdateOrganizationData(val name: String? = null)
 
-    fun update(orgId: Long, data: Map<String, Any>): Organization {
+    override fun doExecute(): Organization {
         val org = Organizations.findById(orgId)!!
-        org.populateFrom(data, UpdateOrganizationData::class).validate().flushChanges()
+        org.populateFrom(input, UpdateOrganizationData::class).validate().update()
         return org
     }
 }

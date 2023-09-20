@@ -4,18 +4,16 @@ import com.cronutils.model.CronType
 import com.cronutils.model.definition.CronDefinitionBuilder
 import com.cronutils.model.time.ExecutionTime
 import com.cronutils.parser.CronParser
-import org.ktapi.entities.*
-import org.ktorm.dsl.and
-import org.ktorm.dsl.eq
-import org.ktorm.dsl.isNull
-import org.ktorm.entity.Entity
-import org.ktorm.schema.boolean
-import org.ktorm.schema.datetime
-import org.ktorm.schema.varchar
+import org.ktlib.entities.Entity
+import org.ktlib.entities.EntityStore
+import org.ktlib.entities.Factory
+import org.ktlib.lookup
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
-interface JobData : WithDates {
+interface Job : Entity {
+    companion object : Factory<Job>()
+
     var enabled: Boolean
     var lastStartTime: LocalDateTime?
     var name: String
@@ -50,38 +48,10 @@ interface JobData : WithDates {
         }
 }
 
-interface Job : EntityWithDates<Job>, JobData {
-    companion object : Entity.Factory<Job>()
-}
+object Jobs : JobStore by lookup()
 
-object Jobs : EntityWithDatesTable<Job>("job") {
-    val enabled = boolean("enabled").bindTo { it.enabled }
-    val lastStartTime = datetime("last_start_time").bindTo { it.lastStartTime }
-    val function = varchar("function").bindTo { it.function }
-    val cron = varchar("cron").bindTo { it.cron }
-    val name = varchar("name").bindTo { it.name }
-
-    fun findAllEnabled() = findList { enabled eq true }
-
-    fun create(name: String, cron: String, function: String, enabled: Boolean) {
-        insert {
-            set(Jobs.name, name)
-            set(Jobs.cron, cron)
-            set(Jobs.function, function)
-            set(Jobs.enabled, enabled)
-        }
-    }
-
-    fun updateStartTime(id: Long, currentTime: LocalDateTime?, newTime: LocalDateTime) =
-        if (currentTime == null) {
-            update {
-                set(lastStartTime, newTime)
-                where { lastStartTime.isNull() and (it.id eq id) }
-            }
-        } else {
-            update {
-                set(lastStartTime, newTime)
-                where { (lastStartTime eq currentTime) and (it.id eq id) }
-            }
-        }.let { it > 0 }
+interface JobStore : EntityStore<Job> {
+    fun create(name: String, cron: String, function: String, enabled: Boolean)
+    fun findAllEnabled(): List<Job>
+    fun updateStartTime(id: String, currentTime: LocalDateTime?, newTime: LocalDateTime): Boolean
 }

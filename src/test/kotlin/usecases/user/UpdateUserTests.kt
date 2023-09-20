@@ -1,37 +1,31 @@
 package usecases.user
 
 import entities.user.Users
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import org.ktapi.entities.ValidationException
-import org.ktapi.test.DbStringSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.ktlib.entities.ValidationException
+import usecases.UseCaseSpec
 
-class UpdateUserTests : DbStringSpec() {
+class UpdateUserTests : UseCaseSpec() {
     init {
         "update user" {
-            var user = Users.findById(1)!!
+            execute(mapOf("firstName" to "newFirst", "lastName" to "newLast"))
 
-            UpdateUser.update(user, mapOf("firstName" to "newFirst", "lastName" to "newLast"))
-
-            user = Users.findById(1)!!
+            val user = Users.findById(currentUserId)!!
             user.firstName shouldBe "newFirst"
             user.lastName shouldBe "newLast"
         }
 
         "update user doesn't work to invalid domain" {
-            val user = Users.findById(1)!!
-
             shouldThrow<ValidationException> {
-                UpdateUser.update(user, mapOf("email" to "something@else.com"))
+                execute(mapOf("email" to "something@else.com"))
             }
         }
 
         "update user works to valid domain" {
-            val user = Users.findById(1)!!
-
-            shouldThrow<ValidationException> {
-                UpdateUser.update(user, mapOf("email" to "something@ktapi.org"))
-            }
+            execute(mapOf("email" to "something@test.com"))
         }
     }
+
+    private fun execute(data: Map<String, Any?>) = useCase(UpdateUser::class, data).execute()
 }

@@ -1,58 +1,49 @@
 package usecases.user
 
+import entities.user.UserLogin
+import entities.user.UserValidation
 import entities.user.UserValidations
+import entities.user.UserValidations.update
 import entities.user.Users
-import io.kotlintest.TestCase
-import io.kotlintest.shouldBe
-import io.mockk.Runs
-import io.mockk.every
-import io.mockk.just
-import org.ktapi.test.DbStringSpec
-import services.EmailService
-import java.time.LocalDateTime
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.ktlib.entities.ValidationException
+import org.ktlib.now
+import usecases.UseCaseSpec
 
-class VerifyEmailTests : DbStringSpec() {
+class VerifyEmailTests : UseCaseSpec() {
+    private lateinit var validation: UserValidation
+    private lateinit var newUserLogin: UserLogin
+
     init {
         "verifyEmail with valid" {
-            val validation = UserValidations.createForEmailValidation("my@email.com", "first", "last")
+            val newUser = Users.create("anew@email.com")!!
+            val validation = UserValidations.createForForgotPassword(newUser)
 
-            val userLogin = VerifyEmail.verifyEmail(validation.token)!!
+            val userLogin = execute(validation.token)
 
-            val user = Users.findById(userLogin.userId)!!
+            userLogin.userId shouldBe newUser.id
             UserValidations.findById(validation.id) shouldBe null
-            user.email shouldBe validation.email
-            user.firstName shouldBe validation.firstName
-            user.lastName shouldBe validation.lastName
         }
 
-        "verify email does nothing when invalid" {
-            var validation = UserValidations.createForEmailValidation("my@email.com")
-            validation = UserValidations.setCreatedAt(validation.id, LocalDateTime.now().minusDays(5))
+        "verify email throws exception when invalid" {
+            val validation =
+                UserValidations.createForForgotPassword(currentUser).apply { createdAt = now().minusDays(5) }.update()
 
-            val result = VerifyEmail.verifyEmail(validation.token)
-
-            result shouldBe null
+            shouldThrow<ValidationException> {
+                execute(validation.token)
+            }
         }
 
         "verify email works with exising email" {
-            val user = Users.create("another@email.com")!!
-            val validation = UserValidations.createForEmailValidation(user.email)
+            val validation = UserValidations.createForForgotPassword(currentUser)
 
-            val result = VerifyEmail.verifyEmail(validation.token)!!
+            val userLogin = execute(validation.token)
 
-            result.userId shouldBe user.id
+            userLogin.userId shouldBe currentUserId
+            UserValidations.findById(validation.id) shouldBe null
         }
     }
 
-    override val objectMocks = listOf(EmailService)
-
-    override fun beforeTest(testCase: TestCase) {
-        super.beforeTest(testCase)
-
-        every {
-            EmailService.sendForgotPassword(any())
-            EmailService.sendEmailVerification(any())
-            EmailService.sendUserInvite(any(), any(), any())
-        } just Runs
-    }
+    private fun execute(token: String) = useCase(VerifyEmail::class, VerifyEmail.Input(token)).execute()
 }

@@ -1,17 +1,17 @@
-package services
+package adapters
 
 import entities.Job
 import entities.Jobs
-import mu.KotlinLogging
-import org.ktapi.Application
-import org.ktapi.reportAndSwallow
-import org.ktapi.trace.Trace
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.ktlib.error.ErrorReporter
+import org.ktlib.reportAndSwallow
+import org.ktlib.trace.Trace
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.math.round
 import kotlin.reflect.full.memberFunctions
 
-object JobService : TimerTask() {
+object JobRunner : TimerTask() {
     private val logger = KotlinLogging.logger {}
     private const val timeBetweenRuns: Long = 1000 * 60
     private val offset = round(Random().nextFloat() * 2000).toLong()
@@ -22,7 +22,7 @@ object JobService : TimerTask() {
         reportAndSwallow {
             val jobs = Jobs.findAllEnabled()
             if (jobs.isNotEmpty()) {
-                logger.warn("Processing jobs")
+                logger.warn { "Processing jobs" }
                 Trace.start("Background", "processJobs", mapOf("class" to this::class.qualifiedName!!))
                 jobs.forEach { processJob(it) }
                 Trace.end()
@@ -38,18 +38,18 @@ object JobService : TimerTask() {
                 val clazz = Class.forName(job.className).kotlin
 
                 if (clazz.objectInstance == null) {
-                    Application.ErrorReporter.report("Invalid job setup. The class is not an object: ${job.className}")
+                    ErrorReporter.report("Invalid job setup. The class is not an object: ${job.className}")
                 } else {
                     val function = clazz.memberFunctions.find { it.name == job.classFunctionName }
                     if (function == null) {
-                        Application.ErrorReporter.report("Invalid job setup. The function does not exist: ${job.function}")
+                        ErrorReporter.report("Invalid job setup. The function does not exist: ${job.function}")
                     } else {
                         Thread {
-                            logger.warn("Running scheduled job ${job.name}")
+                            logger.warn { "Running scheduled job ${job.name}" }
                             Trace.start("Job", job.name, mapOf("function" to job.function))
                             function.call(clazz.objectInstance)
                             Trace.end()
-                            logger.warn("Finished scheduled job ${job.name}")
+                            logger.warn { "Finished scheduled job ${job.name}" }
                         }.start()
                     }
                 }

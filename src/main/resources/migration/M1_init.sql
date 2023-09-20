@@ -7,7 +7,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TABLE job (
-	id bigserial NOT NULL,
+	id varchar NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	last_start_time timestamptz NULL,
@@ -21,7 +21,9 @@ CREATE TABLE job (
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON job FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 CREATE TABLE performance_info (
-	id bigserial NOT NULL,
+	id varchar NOT NULL,
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	time TIMESTAMPTZ NOT NULL,
 	data varchar NOT NULL,
 	CONSTRAINT performance_pk PRIMARY KEY (id)
@@ -30,7 +32,7 @@ CREATE TABLE performance_info (
 CREATE INDEX performance_time ON performance_info USING btree (time);
 
 CREATE TABLE "user" (
-	id bigserial NOT NULL,
+	id varchar NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	email varchar not null,
@@ -49,11 +51,11 @@ CREATE TABLE "user" (
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON "user" FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 CREATE TABLE user_login (
-	id bigserial NOT NULL,
+	id varchar NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	user_id int8 not NULL,
-	parent_id int8 NULL,
+	user_id varchar not NULL,
+	parent_id varchar NULL,
 	token varchar not null,
 	valid bool NOT NULL DEFAULT true,
 	CONSTRAINT user_login_pk PRIMARY KEY (id),
@@ -66,7 +68,7 @@ CREATE INDEX user_login_token ON user_login USING btree (token);
 CREATE INDEX user_login_user_id ON user_login USING btree (user_id);
 
 CREATE TABLE organization (
-	id bigserial NOT NULL,
+	id varchar NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	name varchar not null,
@@ -76,11 +78,11 @@ CREATE TABLE organization (
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON organization FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 CREATE TABLE organization_user (
-	id bigserial NOT NULL,
+	id varchar NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	user_id int8 not null,
-	organization_id int8 not null,
+	user_id varchar not null,
+	organization_id varchar not null,
 	role varchar not null,
 	CONSTRAINT organization_user_pk PRIMARY KEY (id),
 	CONSTRAINT organization_user_user_id_fk FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
@@ -93,15 +95,15 @@ CREATE INDEX organization_user_user_id ON organization_user USING btree (user_id
 CREATE INDEX organization_user_organization_id ON organization_user USING btree (organization_id);
 
 CREATE TABLE user_validation (
-	id bigserial NOT NULL,
+	id varchar NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	email varchar not null,
 	token varchar not null,
 	first_name varchar not null,
 	last_name varchar not null,
-	user_id int8 NULL,
-	organization_id int8 NULL,
+	user_id varchar NULL,
+	organization_id varchar NULL,
 	role varchar null,
 	CONSTRAINT user_validation_pk PRIMARY KEY (id),
 	CONSTRAINT user_validation_user_id_fk FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,

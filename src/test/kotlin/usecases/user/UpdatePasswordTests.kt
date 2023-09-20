@@ -1,29 +1,31 @@
 package usecases.user
 
 import entities.user.Users
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import org.ktapi.Encryption
-import org.ktapi.entities.ValidationException
-import org.ktapi.test.DbStringSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import org.ktlib.Encryption
+import org.ktlib.entities.ValidationException
+import usecases.UseCaseSpec
 
-class UpdatePasswordTests : DbStringSpec() {
+class UpdatePasswordTests : UseCaseSpec() {
+
     init {
         "updatePassword" {
-            UpdatePassword.updatePassword(1, "myNewPasswordHere")
+            execute("myNewPasswordHere")
 
-            val user = Users.findById(1)!!
-            Encryption.passwordMatches("myNewPasswordHere", user.password) shouldBe true
+            Encryption.passwordMatches("myNewPasswordHere", Users.findById(currentUserId)!!.password) shouldBe true
         }
 
         "updatePassword with too short of password throws exception" {
             val exception = shouldThrow<ValidationException> {
-                UpdatePassword.updatePassword(1, "short")
+                execute("short")
             }
 
             exception.validationErrors.size shouldBe 1
             exception.validationErrors.errors.first().field shouldBe "password"
-            exception.validationErrors.errors.first().message shouldBe "password must be at least 8 characters in length"
         }
     }
+
+    private fun execute(password: String) =
+        useCase(UpdatePassword::class, UpdatePassword.Input(password)).execute()
 }

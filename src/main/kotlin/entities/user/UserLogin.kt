@@ -1,57 +1,39 @@
 package entities.user
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.ktapi.Encryption
-import org.ktapi.entities.*
-import org.ktorm.dsl.and
-import org.ktorm.dsl.eq
-import org.ktorm.entity.Entity
-import org.ktorm.schema.boolean
-import org.ktorm.schema.long
-import org.ktorm.schema.varchar
+import entities.user.UserLogins.update
+import org.ktlib.entities.*
+import org.ktlib.lookup
 
-interface UserLoginData : WithDates {
-    val userId: Long
-    val parentId: Long?
+
+interface UserLogin : Entity {
+    companion object : Factory<UserLogin>()
+
+    val userId: String
+    val parentId: String?
     val token: String
-}
-
-interface UserLogin : EntityWithDates<UserLogin>, UserLoginData {
-    companion object : Entity.Factory<UserLogin>()
 
     @get:JsonIgnore
     var valid: Boolean
 
     fun invalidate() {
         valid = false
-        flushChanges()
+        update()
     }
 
-    val user: User
-        get() = lazyLoad(::user) { Users.findById(userId) }
+    val user: User get() = lazyAssociation(::user) { Users.findById(userId)!! }
 }
 
-fun List<UserLogin>.preloadUsers() = preload(
+fun List<UserLogin>.preloadUsers() = preloadLazyAssociation(
     UserLogin::user,
     { Users.findByIds(map { it.userId }) },
-    { one, many -> many.find { one.userId == it.id }!! })
+    { one, many -> many.find { one.userId == it.id }!! }
+)
 
-object UserLogins : EntityWithDatesTable<UserLogin>("user_login") {
-    val token = varchar("token").bindTo { it.token }
-    val userId = long("user_id").bindTo { it.userId }
-    val parentId = long("parent_id").bindTo { it.parentId }
-    val valid = boolean("valid").bindTo { it.valid }
+object UserLogins : UserLoginStore by lookup()
 
-    fun create(userId: Long, parentId: Long? = null): UserLogin {
-        val id = insertAndGenerateKey {
-            set(UserLogins.userId, userId)
-            set(UserLogins.parentId, parentId)
-            set(token, Encryption.generateKey(50))
-        } as Long
-        return findById(id)!!
-    }
-
-    fun findByToken(token: String?) = if (token == null) null else findOne { (UserLogins.token eq token) and valid }
-
-    fun findRecent() = findList { valid }
+interface UserLoginStore : EntityStore<UserLogin> {
+    fun create(userId: String, parentId: String? = null): UserLogin
+    fun findByToken(token: String?): UserLogin?
+    fun findRecent(): List<UserLogin>
 }

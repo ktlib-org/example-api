@@ -1,22 +1,9 @@
 package entities.organization
 
-import entities.user.Users
-import io.kotlintest.shouldBe
-import org.ktapi.test.DbStringSpec
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 
-class OrganizationUserTests : DbStringSpec({
-    "inserting data" {
-        val org = Organizations.create("MyOrg")
-        val user = Users.create("my@email.com")!!
-
-        OrganizationUsers.create(org.id, user.id, UserRole.User)
-        val result = OrganizationUsers.findByOrganizationId(org.id)
-
-        result.size shouldBe 1
-        result.first().userId shouldBe user.id
-        result.first().role shouldBe UserRole.User
-    }
-
+class OrganizationUserTests : StringSpec({
     "roles are comparable" {
         (UserRole.Owner > UserRole.User) shouldBe true
         (UserRole.Owner >= UserRole.User) shouldBe true

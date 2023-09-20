@@ -1,35 +1,50 @@
 package usecases.organization.invite
 
+import entities.organization.Organization
 import entities.organization.OrganizationUsers
 import entities.organization.Organizations
 import entities.organization.UserRole
 import entities.user.User
+import entities.user.UserValidation
 import entities.user.UserValidations
-import org.ktapi.db.transaction
-import org.ktapi.entities.Validation
-import services.EmailService
+import org.ktlib.email.Email
+import org.ktlib.entities.transaction
+import org.ktlib.urlEncode
+import usecases.Role
+import usecases.UseCase
+import usecases.UseCaseConfig
+import usecases.UseCaseConfig.webAppUrl
 
-object InviteUser {
-    fun inviteUser(
-        orgId: Long,
-        role: UserRole,
-        invitingUser: User,
-        email: String,
-        firstName: String = "",
-        lastName: String = ""
-    ) = transaction {
-        Validation.validateField("email", email) { Validation.validEmailDomain() }
-        val currentUserRole = OrganizationUsers.findByUserIdAndOrganizationId(invitingUser.id, orgId)
+class InviteUser : UseCase<InviteUser.Input, UserValidation>(Role.Admin) {
+    data class Input(
+        val role: UserRole,
+        val email: String,
+        val firstName: String = "",
+        val lastName: String = ""
+    )
+
+    override fun doExecute() = transaction {
+        val (role, email, firstName, lastName) = input
+        val currentUserRole = OrganizationUsers.findByUserIdAndOrganizationId(currentUser.id, orgId)
 
         if (currentUserRole != null && currentUserRole.role >= role) {
             val org = Organizations.findById(orgId)!!
             val validation = UserValidations.createForInvite(org.id, role, email, firstName, lastName)
 
-            EmailService.sendUserInvite(org, invitingUser, validation)
+            sendUserInvite(org, currentUser, validation)
 
             validation
         } else {
             throw Exception("User does not have permission to assign this role")
         }
+    }
+
+    private fun sendUserInvite(organization: Organization, invitingUser: User, validation: UserValidation) {
+        val url = "$webAppUrl/?action=acceptInvite&token=${validation.token.urlEncode()}"
+        Email.send(
+            template = UseCaseConfig.userInviteTemplate,
+            to = validation.toEmailData(),
+            data = mapOf("url" to url, "organization" to organization.name, "invitedBy" to invitingUser.fullName)
+        )
     }
 }

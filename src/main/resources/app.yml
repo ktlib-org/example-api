@@ -1,17 +1,23 @@
 application:
-  name: An API
-  email: org.ktapi.email.SendGrid
+  name: Base Kotlin
 
 web:
-  accessManager: api.AccessManager
   corsOrigins: "*"
+  openApi: false
+  baseEncodeJson: false
+
+instances:
+  org.ktlib.email.Email: org.ktlib.email.SendGrid
+  org.ktlib.entities.EntityInitializer: adapters.db.EntityInitializer
 
 email:
-  defaultFrom: noreply@ktapi.org
-  defaultFromName: KtApi
+  defaultFrom: noreply@ktlib.org
+  defaultFromName: Kotlin
   verificationTemplate: fakeVerificationTemplate
   forgotPasswordTemplate: fakeForgotPasswordTemplate
   userInviteTemplate: fakeUserInviteTemplate
+  sendgrid:
+    apiKey: $SENDGRID_API_KEY
 
 db:
   type: Postgres

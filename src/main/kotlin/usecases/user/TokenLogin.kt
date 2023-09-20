@@ -3,15 +3,26 @@ package usecases.user
 import entities.user.UserLogin
 import entities.user.UserLogins
 import entities.user.UserValidations
+import entities.user.UserValidations.delete
+import org.ktlib.entities.ValidationError
+import org.ktlib.entities.ValidationErrors
+import org.ktlib.entities.ValidationException
+import org.ktlib.entities.transaction
+import usecases.Role
+import usecases.UseCase
 
-object TokenLogin {
-    fun tokenLogin(token: String): UserLogin? {
-        val validation = UserValidations.findByToken(token) ?: return null
+class TokenLogin : UseCase<TokenLogin.Input, UserLogin?>(Role.Anyone) {
+    data class Input(val token: String)
 
-        validation.delete()
+    override fun doExecute() = transaction {
+        UserValidations.findByToken(input.token).let { validation ->
+            validation?.delete()
 
-        if (!validation.isValid || validation.userId == null) return null
+            if (validation?.isValid != true || validation.userId == null) {
+                throw ValidationException(ValidationErrors(mutableListOf(ValidationError("token", "Invalid token."))))
+            }
 
-        return UserLogins.create(validation.userId!!)
+            UserLogins.create(validation.userId!!)
+        }
     }
 }

@@ -1,17 +1,26 @@
 package usecases.user
 
+import entities.user.UserLogin
 import entities.user.UserLogins
 import entities.user.UserValidations
+import entities.user.UserValidations.delete
 import entities.user.Users
-import org.ktapi.db.transaction
+import org.ktlib.entities.ValidationError
+import org.ktlib.entities.ValidationErrors
+import org.ktlib.entities.ValidationException
+import org.ktlib.entities.transaction
+import usecases.Role
+import usecases.UseCase
 
-object VerifyEmail {
-    fun verifyEmail(token: String) = transaction {
-        UserValidations.findByToken(token)?.let { validation ->
-            validation.delete()
+class VerifyEmail : UseCase<VerifyEmail.Input, UserLogin>(Role.Anyone) {
+    data class Input(val token: String)
 
-            if (!validation.isValid) {
-                null
+    override fun doExecute() = transaction {
+        UserValidations.findByToken(input.token).let { validation ->
+            validation?.delete()
+
+            if (validation?.isValid != true) {
+                throw ValidationException(ValidationErrors(mutableListOf(ValidationError("token", "Invalid token."))))
             } else {
                 val user =
                     Users.create(

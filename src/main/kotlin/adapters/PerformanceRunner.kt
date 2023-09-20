@@ -1,16 +1,16 @@
-package services
+package adapters
 
 import entities.PerformanceData
 import entities.PerformanceInfos
-import org.ktapi.Application
-import org.ktapi.minutesAgo
-import org.ktapi.toStartOfMinute
-import org.ktapi.trace.TraceData
+import org.ktlib.minutesAgo
+import org.ktlib.toStartOfMinute
+import org.ktlib.trace.TraceData
+import org.ktlib.trace.TraceLogger
 import java.time.LocalDateTime
 
-object PerformanceService {
+object PerformanceRunner {
     fun loadRecentAndProcess() {
-        process(Application.TraceLogger.loadTraceData(6.minutesAgo()..LocalDateTime.now(), null, null, null, null))
+        process(TraceLogger.loadTraceData(6.minutesAgo()..LocalDateTime.now(), null, null, null, null))
     }
 
     fun process(traceData: List<TraceData>) {

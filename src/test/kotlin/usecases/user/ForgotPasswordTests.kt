@@ -1,44 +1,42 @@
 package usecases.user
 
+import entities.user.User
 import entities.user.Users
-import io.kotlintest.TestCase
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import io.mockk.*
-import org.ktapi.test.DbStringSpec
-import services.EmailService
+import org.ktlib.email.Email
+import usecases.UseCaseSpec
 
-class ForgotPasswordTests : DbStringSpec() {
+class ForgotPasswordTests : UseCaseSpec() {
+    private lateinit var user: User
+
     init {
+        objectMocks(Email)
+
         "forgot password sends email" {
-            var user = Users.findById(1)!!
+            val result = execute(user.email)
 
-            ForgotPassword.forgotPassword(user.email)
-
-            user = Users.findById(1)!!
-            user.passwordSet shouldBe false
-            verify {
-                EmailService.sendForgotPassword(any())
-            }
+            val userAfter = Users.findById(user.id)!!
+            result?.userId shouldBe userAfter.id
+            userAfter.passwordSet shouldBe false
+            verify { Email.send(any(), any(), any(), any()) }
         }
 
         "forgot password does nothing if email not found" {
-            ForgotPassword.forgotPassword("fake@email.coms")
+            execute("fake@email.com")
 
             verify {
-                EmailService wasNot Called
+                Email wasNot Called
             }
+        }
+
+        beforeEach {
+            user = Users.create("MyEmail", "password")!!
+
+            every { Email.send(any(), any(), any(), any()) } just Runs
         }
     }
 
-    override val objectMocks = listOf(EmailService)
-
-    override fun beforeTest(testCase: TestCase) {
-        super.beforeTest(testCase)
-
-        every {
-            EmailService.sendForgotPassword(any())
-            EmailService.sendEmailVerification(any())
-            EmailService.sendUserInvite(any(), any(), any())
-        } just Runs
-    }
+    private fun execute(email: String) =
+        useCase(ForgotPassword::class, ForgotPassword.Input(email)).execute()
 }

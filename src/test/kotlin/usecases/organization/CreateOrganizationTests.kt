@@ -2,28 +2,35 @@ package usecases.organization
 
 import entities.organization.OrganizationUsers
 import entities.organization.UserRole
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import org.ktapi.entities.ValidationException
-import org.ktapi.test.DbStringSpec
-import usecases.organization.CreateOrganization.CreateOrganizationData
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.mockk.verify
+import org.ktlib.entities.ValidationException
+import org.ktlib.slack.Slack
+import usecases.UseCaseSpec
 
-class CreateOrganizationTests : DbStringSpec() {
+class CreateOrganizationTests : UseCaseSpec() {
     init {
-        "create org" {
-            val org = CreateOrganization.create(CreateOrganizationData("MyOrg"), 1)
+        objectMocks(Slack)
 
-            val orgUsers = OrganizationUsers.findByOrganizationId(org.id)
+        "create org" {
+            val org = execute("MyOrg")
+
+            val orgUser = OrganizationUsers.findByOrganizationId(org.id)
             org.name shouldBe "MyOrg"
-            orgUsers.size shouldBe 1
-            orgUsers.first().userId shouldBe 1
-            orgUsers.first().role shouldBe UserRole.Owner
+            orgUser.size shouldBe 1
+            orgUser.first().userId shouldBe currentUserId
+            orgUser.first().role shouldBe UserRole.Owner
+            verify { Slack.sendMessage(any()) }
         }
 
         "create org throws exception if name is blank" {
             shouldThrow<ValidationException> {
-                CreateOrganization.create(CreateOrganizationData(""), 1)
+                execute("")
             }
         }
     }
+
+    private fun execute(name: String) =
+        useCase(CreateOrganization::class, CreateOrganization.Input(name)).execute()
 }

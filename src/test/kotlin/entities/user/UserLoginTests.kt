@@ -1,26 +1,26 @@
 package entities.user
 
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.ktapi.test.DbStringSpec
+import entities.user.UserLogins.update
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.verify
+import org.ktlib.test.EntitySpec
 
-class UserLoginTests : DbStringSpec({
-    "create" {
-        val user = Users.findById(1)!!
-
-        val userLogin = UserLogins.create(user.id)
-
-        userLogin.token shouldNotBe null
-        userLogin.userId shouldBe 1
-        userLogin.valid shouldBe true
-    }
-
+class UserLoginTests : EntitySpec({
+    objectMocks(UserLogins)
+    
     "invalidate" {
-        val user = Users.findById(1)!!
-        val userLogin = UserLogins.create(user.id)
+        every { any<UserLogin>().update() } returns UserLogin {}
+
+        val userLogin = UserLogin {
+            valid = true
+        }
 
         userLogin.invalidate()
 
-        UserLogins.findById(userLogin.id)!!.valid shouldBe false
+        userLogin.valid shouldBe false
+        verify {
+            userLogin.update()
+        }
     }
 })

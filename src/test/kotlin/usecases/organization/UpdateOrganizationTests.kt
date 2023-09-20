@@ -1,18 +1,18 @@
 package usecases.organization
 
 import entities.organization.Organizations
-import io.kotlintest.shouldBe
-import org.ktapi.test.DbStringSpec
+import io.kotest.matchers.shouldBe
+import usecases.UseCaseSpec
 
-class UpdateOrganizationTests : DbStringSpec() {
+class UpdateOrganizationTests : UseCaseSpec() {
     init {
         "update org" {
-            var org = Organizations.create("OriginalName")
+            execute(mapOf("name" to "NewName"))
 
-            UpdateOrganization.update(org.id, mapOf("name" to "NewName"))
-
-            org = Organizations.findById(org.id)!!
+            val org = Organizations.findById(testOrgId)!!
             org.name shouldBe "NewName"
         }
     }
+
+    private fun execute(data: Map<String, Any?>) = useCase(UpdateOrganization::class, data).execute()
 }

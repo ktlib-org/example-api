@@ -1,20 +1,20 @@
 package usecases.user
 
 import entities.user.UserValidations
-import entities.user.Users
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.ktapi.test.DbStringSpec
+import io.kotest.matchers.shouldBe
+import usecases.UseCaseSpec
 
-class TokenLoginTests : DbStringSpec() {
+class TokenLoginTests : UseCaseSpec() {
     init {
         "token login" {
-            val validation = UserValidations.createForForgotPassword(Users.findById(1)!!)
+            val validation = UserValidations.createForForgotPassword(currentUser)
 
-            val result = TokenLogin.tokenLogin(validation.token)
+            val result = execute(validation.token)
 
-            result shouldNotBe null
+            result?.userId shouldBe currentUserId
             UserValidations.findById(validation.id) shouldBe null
         }
     }
+
+    private fun execute(token: String) = useCase(TokenLogin::class, TokenLogin.Input(token)).execute()
 }

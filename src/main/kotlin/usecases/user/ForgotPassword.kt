@@ -1,21 +1,37 @@
 package usecases.user
 
 import entities.user.User
+import entities.user.UserValidation
 import entities.user.UserValidations
 import entities.user.Users
-import org.ktapi.db.transaction
-import services.EmailService
+import entities.user.Users.update
+import org.ktlib.email.Email
+import org.ktlib.entities.transaction
+import org.ktlib.urlEncode
+import usecases.Role
+import usecases.UseCase
+import usecases.UseCaseConfig
+import usecases.UseCaseConfig.webAppUrl
 
-object ForgotPassword {
-    fun forgotPassword(email: String?) = Users.findByEmail(email)?.let { forgotPassword(it) }
+class ForgotPassword : UseCase<ForgotPassword.Input, UserValidation?>(Role.Anyone) {
+    data class Input(val email: String)
 
-    fun forgotPassword(user: User) = transaction {
+    override fun doExecute() = Users.findByEmail(input.email)?.let { executeForUser(it) }
+
+    private fun executeForUser(user: User) = transaction {
         user.passwordSet = false
-        user.flushChanges()
+        user.update()
 
-        val validation = UserValidations.createForForgotPassword(user)
-        EmailService.sendForgotPassword(validation)
+        UserValidations.createForForgotPassword(user).sendForgotPassword()
+    }
 
-        validation
+    private fun UserValidation.sendForgotPassword(): UserValidation {
+        val url = "${webAppUrl}/?action=resetPassword&token=${token.urlEncode()}"
+        Email.send(
+            template = UseCaseConfig.forgotPasswordTemplate,
+            to = toEmailData(),
+            data = mapOf("url" to url)
+        )
+        return this
     }
 }

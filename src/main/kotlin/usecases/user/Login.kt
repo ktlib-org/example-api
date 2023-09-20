@@ -4,22 +4,30 @@ import entities.user.User
 import entities.user.UserLogin
 import entities.user.UserLogins
 import entities.user.Users
-import org.ktapi.Encryption
+import org.ktlib.Encryption
+import usecases.Role
+import usecases.UseCase
 
-object Login {
-    fun login(email: String, password: String): Pair<User?, UserLogin?> {
-        val user = Users.findByEmail(email) ?: return Pair(null, null)
+class Login : UseCase<Login.Input, Login.Output>(Role.Anyone) {
+    data class Input(val email: String, val password: String)
+    data class Output(val userLogin: UserLogin? = null, private val user: User? = null) {
+        val userLocked: Boolean = user?.locked == true
+        val loginFailed: Boolean = userLogin == null
+    }
+
+    override fun doExecute(): Output {
+        val user = Users.findByEmail(input.email) ?: return Output()
 
         return when {
-            user.locked -> Pair(user, null)
-            Encryption.passwordMatches(password, user.password) -> {
+            user.locked -> Output(user = user)
+            Encryption.passwordMatches(input.password, user.password) -> {
                 user.clearPasswordFailures()
-                Pair(user, UserLogins.create(user.id))
+                Output(userLogin = UserLogins.create(user.id))
             }
 
             else -> {
                 user.passwordFailure()
-                Pair(user, null)
+                Output(user = user)
             }
         }
     }

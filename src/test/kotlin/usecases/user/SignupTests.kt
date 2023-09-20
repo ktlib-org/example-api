@@ -1,47 +1,38 @@
 package usecases.user
 
-import entities.user.Users
-import io.kotlintest.TestCase
-import io.kotlintest.shouldBe
-import io.mockk.Runs
-import io.mockk.every
-import io.mockk.just
-import io.mockk.verify
-import org.ktapi.test.DbStringSpec
-import services.EmailService
+import entities.user.UserValidation
+import io.kotest.matchers.shouldNotBe
+import io.mockk.*
+import org.ktlib.email.Email
+import usecases.UseCase
+import usecases.UseCaseConfig
+import usecases.UseCaseSpec
 
-class SignupTests : DbStringSpec() {
+class SignupTests : UseCaseSpec() {
+    private val forgotPassword = mockk<ForgotPassword>()
+
     init {
+        objectMocks(Email, UseCase)
+
         "signup" {
-            val validation = Signup.signup("anew@ktapi.org")
+            val validation = execute("anew@test.com")
 
-            validation.email shouldBe "anew@ktapi.org"
-            verify {
-                EmailService.sendEmailVerification(validation)
-            }
+            validation shouldNotBe null
+            verify { Email.send(UseCaseConfig.emailVerificationTemplate, any(), any(), any(), any(), any()) }
         }
 
-        "signup with exising email sends forgot password" {
-            val testUser = Users.findById(1)!!
+        "signup with exising email calls forgot password" {
+            execute(currentUser.email)
 
-            val validation = Signup.signup(testUser.email)
+            verify { forgotPassword.execute() }
+        }
 
-            validation.userId shouldBe testUser.id
-            verify {
-                EmailService.sendForgotPassword(validation)
-            }
+        beforeEach {
+            every { UseCase.create(ForgotPassword::class, any()) } returns forgotPassword
+            every { Email.send(any(), any(), any(), any(), any(), any()) } just Runs
+            every { forgotPassword.execute() } returns UserValidation {}
         }
     }
 
-    override val objectMocks = listOf(EmailService)
-
-    override fun beforeTest(testCase: TestCase) {
-        super.beforeTest(testCase)
-
-        every {
-            EmailService.sendForgotPassword(any())
-            EmailService.sendEmailVerification(any())
-            EmailService.sendUserInvite(any(), any(), any())
-        } just Runs
-    }
+    private fun execute(email: String) = useCase(Signup::class, Signup.Input(email)).execute()
 }

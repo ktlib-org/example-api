@@ -1,3 +1,2 @@
-
-rootProject.name = "ktapi-base"
+rootProject.name = "base-kotlin"
 

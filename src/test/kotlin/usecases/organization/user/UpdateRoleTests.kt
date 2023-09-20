@@ -1,50 +1,58 @@
 package usecases.organization.user
 
+import entities.organization.OrganizationUser
 import entities.organization.OrganizationUsers
 import entities.organization.UserRole
+import entities.user.User
 import entities.user.Users
-import io.kotlintest.shouldBe
-import org.ktapi.test.DbStringSpec
+import io.kotest.matchers.shouldBe
+import usecases.UseCaseSpec
 
-class UpdateRoleTests : DbStringSpec() {
+class UpdateRoleTests : UseCaseSpec() {
+    private lateinit var user: User
+    private lateinit var orgUser: OrganizationUser
+    private lateinit var currentOrgUser: OrganizationUser
+
     init {
+        objectMocks(OrganizationUsers)
+
         "update user" {
-            val newUser = Users.create("test@ktapi.org")!!
-            val orgUser = OrganizationUsers.create(1, newUser.id, UserRole.Admin)
+            val result = execute(orgUser.userId, UserRole.Admin)
 
-            UpdateRole.updateRole(1, newUser.id, UserRole.User, 1)
-
-            OrganizationUsers.findById(orgUser.id)?.role shouldBe UserRole.User
+            result?.role shouldBe UserRole.Admin
         }
 
         "cannot update user with higher role" {
-            val newUserOne = Users.create("test@ktapi.org")!!
-            OrganizationUsers.create(1, newUserOne.id, UserRole.Admin)
-            val newUserTwo = Users.create("test2@ktapi.org")!!
-            val orgUser = OrganizationUsers.create(1, newUserTwo.id, UserRole.Owner)
+            OrganizationUsers.updateRole(currentOrgUser.id, UserRole.Admin)
+            OrganizationUsers.updateRole(orgUser.id, UserRole.Owner)
 
-            UpdateRole.updateRole(1, orgUser.id, UserRole.User, newUserOne.id)
+            val result = execute(orgUser.userId, UserRole.User)
 
-            OrganizationUsers.findById(orgUser.id)?.role shouldBe UserRole.Owner
+            result?.role shouldBe UserRole.Owner
         }
 
         "cannot update user to higher role" {
-            val newUserOne = Users.create("test@ktapi.org")!!
-            OrganizationUsers.create(1, newUserOne.id, UserRole.Admin)
-            val newUserTwo = Users.create("test2@ktapi.org")!!
-            val orgUser = OrganizationUsers.create(1, newUserTwo.id, UserRole.Admin)
+            OrganizationUsers.updateRole(currentOrgUser.id, UserRole.Admin)
+            OrganizationUsers.updateRole(orgUser.id, UserRole.Admin)
 
-            UpdateRole.updateRole(1, orgUser.id, UserRole.Owner, newUserOne.id)
+            val result = execute(orgUser.userId, UserRole.Owner)
 
-            OrganizationUsers.findById(orgUser.id)?.role shouldBe UserRole.Admin
+            result?.role shouldBe UserRole.Admin
         }
 
         "cannot update last owner" {
-            val orgUser = OrganizationUsers.findByUserIdAndOrganizationId(1, 1)!!
+            val result = execute(currentUserId, UserRole.Admin)
 
-            UpdateRole.updateRole(1, orgUser.id, UserRole.Admin, 1)
+            result?.role shouldBe UserRole.Owner
+        }
 
-            OrganizationUsers.findById(orgUser.id)?.role shouldBe UserRole.Owner
+        beforeEach {
+            user = Users.create("update@test.com")!!
+            orgUser = OrganizationUsers.create(testOrgId, user.id, UserRole.User)
+            currentOrgUser = OrganizationUsers.findByUserIdAndOrganizationId(currentUserId, testOrgId)!!
         }
     }
+
+    private fun execute(userToUpdate: String, role: UserRole) =
+        useCase(UpdateRole::class, UpdateRole.Input(userToUpdate, role)).execute()
 }

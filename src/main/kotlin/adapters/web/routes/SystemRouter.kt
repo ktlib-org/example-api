@@ -1,23 +1,22 @@
-package web.routes
+package adapters.web.routes
 
+import adapters.web.userLoginOrNull
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.http.Context
 import io.javalin.http.HttpStatus
-import io.javalin.openapi.HttpMethod
-import io.javalin.openapi.OpenApi
-import io.javalin.openapi.OpenApiContent
-import io.javalin.openapi.OpenApiResponse
-import org.ktapi.Environment
-import org.ktapi.db.Database
-import org.ktapi.web.Router
-import web.ApiRole
+import org.ktlib.Environment
+import org.ktlib.config
+import org.ktlib.db.Database
+import org.ktlib.web.Router
 
-object StatusRouter : Router {
+object SystemRouter : Router {
+    private val baseEncodeJson = config<Boolean>("web.baseEncodeJson")
     private const val detailsKey = ""
-    private const val tag = "System"
 
     override fun route() {
-        get("/status", this::status, ApiRole.Anyone)
+        get("/status", this::status)
+        get("/q", this::isEmployee)
+        get("/e", this::isBaseEncodeJson)
     }
 
     data class StatusResult(
@@ -26,17 +25,6 @@ object StatusRouter : Router {
         val version: String? = null
     )
 
-    @OpenApi(
-        path = "/status",
-        methods = [HttpMethod.GET],
-        operationId = "status",
-        summary = "Returns the status of the API",
-        tags = [tag],
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(StatusResult::class)]),
-            OpenApiResponse("503")
-        ]
-    )
     private fun status(ctx: Context) {
         val showDetails = detailsKey.isBlank() || ctx.queryParam("details") == detailsKey
         val statuses = doStatusCheck()
@@ -54,4 +42,12 @@ object StatusRouter : Router {
     private fun doStatusCheck() = mapOf(
         "db" to Database.connected
     )
+
+    private fun isEmployee(ctx: Context) {
+        ctx.json(if (ctx.userLoginOrNull?.user?.employee == true) 1 else 0)
+    }
+
+    private fun isBaseEncodeJson(ctx: Context) {
+        ctx.json(if (baseEncodeJson) 1 else 0)
+    }
 }

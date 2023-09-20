@@ -1,7 +1,7 @@
 version: '3.1'
 
 services:
-  postgress-ktapi-base:
+  postgress-base-kotlin:
     image: "postgres"
     restart: always
     ports:

@@ -2,19 +2,20 @@ package usecases.organization.invite
 
 import entities.organization.UserRole
 import entities.user.UserValidations
-import entities.user.Users
-import io.kotlintest.shouldBe
-import org.ktapi.test.DbStringSpec
+import io.kotest.matchers.shouldBe
+import usecases.UseCaseSpec
 
-class RemoveInviteTests : DbStringSpec() {
+class RemoveInviteTests : UseCaseSpec() {
     init {
         "remove invite" {
-            val user = Users.findById(1)!!
-            val invite = UserValidations.createForInvite(1, UserRole.User, user)
+            val validation = UserValidations.createForInvite(testOrgId, UserRole.User, currentUser)
 
-            RemoveInvite.removeInvite(1, invite.id)
+            execute(validation.id)
 
-            UserValidations.findById(invite.id) shouldBe null
+            UserValidations.findById(validation.id) shouldBe null
         }
     }
+
+    private fun execute(inviteId: String) =
+        useCase(RemoveInvite::class, RemoveInvite.Input(inviteId)).execute()
 }

@@ -1,6 +1,6 @@
 buildscript {
     val kotlinVersion: String by project
-    val ktapiVersion: String by project
+    val ktlibVersion: String by project
 
     repositories {
         mavenCentral()
@@ -9,7 +9,7 @@ buildscript {
 
     dependencies {
         classpath(kotlin("gradle-plugin", version = kotlinVersion))
-        classpath("com.github.ktapi:ktapi:$ktapiVersion")
+        classpath("com.github.aaronfreeman:ktlib:$ktlibVersion")
     }
 }
 
@@ -22,20 +22,22 @@ repositories {
 
 dependencies {
     val ktormVersion: String by project
-    val ktapiVersion: String by project
+    val ktlibVersion: String by project
     val javalinVersion: String by project
+    val kotestVersion: String by project
 
-    implementation("com.github.ktapi:ktapi:$ktapiVersion")
+    implementation("com.github.aaronfreeman:ktlib:$ktlibVersion")
     implementation("org.ktorm:ktorm-core:$ktormVersion")
     implementation("org.ktorm:ktorm-jackson:$ktormVersion")
     implementation("io.javalin:javalin:$javalinVersion")
     implementation("io.javalin.community.openapi:javalin-openapi-plugin:$javalinVersion")
-    implementation("io.github.microutils:kotlin-logging:2.1.23")
+    implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
     implementation("com.cronutils:cron-utils:9.2.0")
     implementation("org.flywaydb:flyway-core:9.3.0")
     implementation("org.postgresql:postgresql:42.2.27")
     testImplementation("io.javalin:javalin-testtools:$javalinVersion")
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:1.12.7")
 }
 
@@ -52,7 +54,7 @@ project.version = hash
 project.file("src/main/resources/version").writeText(hash)
 
 apply(plugin = "kotlin")
-apply<org.ktapi.gradle.MigrationPlugin>()
+apply<org.ktlib.gradle.MigrationPlugin>()
 
 plugins {
     application

@@ -1,30 +1,26 @@
 package entities.organization
 
-import org.ktapi.entities.EntityWithDates
-import org.ktapi.entities.EntityWithDatesTable
-import org.ktapi.entities.Validation.field
-import org.ktapi.entities.Validation.notBlank
-import org.ktapi.entities.Validation.validate
-import org.ktapi.entities.WithDates
-import org.ktorm.entity.Entity
-import org.ktorm.schema.varchar
+import org.ktlib.entities.Entity
+import org.ktlib.entities.EntityStore
+import org.ktlib.entities.Factory
+import org.ktlib.entities.Validation.field
+import org.ktlib.entities.Validation.notBlank
+import org.ktlib.entities.Validation.validate
+import org.ktlib.lookup
 
-interface OrganizationData : WithDates {
+interface Organization : Entity {
+    companion object : Factory<Organization>()
+
     var name: String
-}
-
-interface Organization : EntityWithDates<Organization>, OrganizationData {
-    companion object : Entity.Factory<Organization>()
 
     fun validate() = validate {
         field(::name) { notBlank() }
     }
 }
 
-object Organizations : EntityWithDatesTable<Organization>("organization") {
-    val name = varchar("name").bindTo { it.name }
+object Organizations : OrganizationStore by lookup()
 
-    fun create(name: String) = Organization {
-        this.name = name
-    }.create()
+interface OrganizationStore : EntityStore<Organization> {
+    fun create(name: String): Organization
+    fun all(): List<Organization>
 }

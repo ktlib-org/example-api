@@ -1,12 +1,18 @@
 package usecases.user
 
+import entities.user.User
 import entities.user.Users
-import org.ktapi.entities.Validation.lengthAtLeast
-import org.ktapi.entities.Validation.validateField
+import org.ktlib.Encryption
+import org.ktlib.entities.Validation.lengthAtLeast
+import org.ktlib.entities.Validation.validateField
+import usecases.Role
+import usecases.UseCase
 
-object UpdatePassword {
-    fun updatePassword(userId: Long, password: String) {
-        validateField("password", password) { lengthAtLeast(8) }
-        Users.updatePassword(userId, password)
+class UpdatePassword : UseCase<UpdatePassword.Input, Unit>(Role.UserNoOrg) {
+    data class Input(val password: String)
+
+    override fun doExecute() {
+        validateField(User::password, input.password) { lengthAtLeast(8) }
+        Users.updatePassword(currentUserId, Encryption.hashPassword(input.password))
     }
 }

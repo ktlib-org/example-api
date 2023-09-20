@@ -1,26 +1,44 @@
 package usecases.user
 
+import entities.user.User
+import entities.user.UserValidation
 import entities.user.UserValidations
 import entities.user.Users
-import org.ktapi.db.transaction
-import org.ktapi.entities.Validation.validEmailDomain
-import org.ktapi.entities.Validation.validateField
-import services.EmailService
+import org.ktlib.email.Email
+import org.ktlib.entities.Validation.validEmailDomain
+import org.ktlib.entities.Validation.validateField
+import org.ktlib.entities.transaction
+import org.ktlib.urlEncode
+import usecases.Role
+import usecases.UseCase
+import usecases.UseCaseConfig
 
-object Signup {
-    fun signup(email: String, firstName: String = "", lastName: String = "") = transaction {
+class Signup : UseCase<Signup.Input, UserValidation?>(Role.Anyone) {
+    data class Input(val email: String, val firstName: String = "", val lastName: String = "")
+
+    override fun doExecute() = transaction {
+        val (email, firstName, lastName) = input
         val user = Users.findByEmail(email)
 
         if (user == null) {
-            validateField("email", email) { validEmailDomain() }
-            
+            validateField(User::email, email) { validEmailDomain() }
+
             val validation = UserValidations.createForEmailValidation(email, firstName, lastName)
 
-            EmailService.sendEmailVerification(validation)
+            senEmailVerification(validation)
 
             validation
         } else {
-            ForgotPassword.forgotPassword(user)
+            executeUseCase(ForgotPassword::class, ForgotPassword.Input(email))
         }
+    }
+
+    private fun senEmailVerification(validation: UserValidation) {
+        val url = "${UseCaseConfig.webAppUrl}/?action=verifyEmail&token=${validation.token.urlEncode()}"
+        Email.send(
+            template = UseCaseConfig.emailVerificationTemplate,
+            to = validation.toEmailData(),
+            data = mapOf("url" to url)
+        )
     }
 }

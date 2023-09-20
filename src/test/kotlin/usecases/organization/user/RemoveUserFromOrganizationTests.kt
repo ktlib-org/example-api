@@ -1,40 +1,56 @@
 package usecases.organization.user
 
+import entities.organization.OrganizationUser
 import entities.organization.OrganizationUsers
 import entities.organization.UserRole
+import entities.user.User
+import entities.user.UserLogins
 import entities.user.Users
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import org.ktapi.test.DbStringSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import usecases.UseCaseContext
+import usecases.UseCaseSpec
 
-class RemoveUserFromOrganizationTests : DbStringSpec() {
+class RemoveUserFromOrganizationTests : UseCaseSpec() {
+    private lateinit var user: User
+    private lateinit var admin: User
+    private lateinit var orgUser: OrganizationUser
+    private lateinit var orgAdmin: OrganizationUser
+
     init {
-        "remove user" {
-            val newUser = Users.create("test@ktapi.org")!!
-            val orgUser = OrganizationUsers.create(1, newUser.id, UserRole.Admin)
+        objectMocks(OrganizationUsers)
 
-            RemoveUserFromOrganization.removeUser(1, newUser.id, 1)
+        "remove user" {
+            execute(orgUser.userId)
 
             OrganizationUsers.findById(orgUser.id) shouldBe null
         }
 
         "cannot remove user with higher role" {
-            val newUserOne = Users.create("test@ktapi.org")!!
-            OrganizationUsers.create(1, newUserOne.id, UserRole.Admin)
-            val newUserTwo = Users.create("test2@ktapi.org")!!
-            val orgUser = OrganizationUsers.create(1, newUserTwo.id, UserRole.Owner)
+            OrganizationUsers.updateRole(orgUser.id, UserRole.Owner)
 
-            RemoveUserFromOrganization.removeUser(1, orgUser.id, newUserOne.id)
+            val context =
+                UseCaseContext(UserLogins.create(admin.id), testOrgId, RemoveUserFromOrganization.Input(orgUser.id))
 
-            OrganizationUsers.findById(orgUser.id) shouldNotBe null
+            useCase(RemoveUserFromOrganization::class, context).execute()
+
+            OrganizationUsers.findById(orgAdmin.id) shouldNotBe null
         }
 
         "cannot remove last owner" {
-            val orgUser = OrganizationUsers.findByUserIdAndOrganizationId(1, 1)!!
+            execute(currentUserId)
 
-            RemoveUserFromOrganization.removeUser(1, orgUser.id, 1)
+            OrganizationUsers.findByUserIdAndOrganizationId(currentUserId, testOrgId) shouldNotBe null
+        }
 
-            OrganizationUsers.findById(orgUser.id) shouldNotBe null
+        beforeEach {
+            user = Users.create("temp@user.com")!!
+            admin = Users.create("admin@user.com")!!
+            orgUser = OrganizationUsers.create(testOrgId, user.id, UserRole.User)
+            orgAdmin = OrganizationUsers.create(testOrgId, admin.id, UserRole.Admin)
         }
     }
+
+    private fun execute(userId: String) =
+        useCase(RemoveUserFromOrganization::class, RemoveUserFromOrganization.Input(userId)).execute()
 }
