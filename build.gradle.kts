@@ -33,7 +33,7 @@ dependencies {
     implementation("io.javalin.community.openapi:javalin-openapi-plugin:$javalinVersion")
     implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
     implementation("com.cronutils:cron-utils:9.2.0")
-    implementation("org.flywaydb:flyway-core:9.3.0")
+    implementation("org.flywaydb:flyway-core:9.22.0")
     implementation("org.postgresql:postgresql:42.2.27")
     testImplementation("io.javalin:javalin-testtools:$javalinVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
@@ -64,7 +64,7 @@ plugins {
 }
 
 application {
-    mainClass.set("web.AppKt")
+    mainClass.set("adapters.AppKt")
 }
 
 docker {

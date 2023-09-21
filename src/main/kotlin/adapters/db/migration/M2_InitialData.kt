@@ -6,6 +6,7 @@ import entities.organization.OrganizationUsers
 import entities.organization.Organizations
 import entities.organization.UserRole
 import entities.user.Users
+import entities.user.Users.update
 import org.ktlib.Encryption
 import org.ktlib.Environment
 import org.ktlib.db.KotlinMigration
@@ -28,9 +29,11 @@ class M2_InitialData : KotlinMigration() {
     }
 
     private fun createOrg(name: String, userEmail: String, firstName: String, lastName: String) {
-        val user = Users.create(userEmail, Encryption.hashPassword("test"), firstName, lastName)
+        val user = Users.create(userEmail, Encryption.hashPassword("test"), firstName, lastName)!!
+        user.employee = true
+        user.update()
         val org = Organizations.create(name)
-        OrganizationUsers.create(org.id, user!!.id, UserRole.Owner)
+        OrganizationUsers.create(org.id, user.id, UserRole.Owner)
     }
 
     override fun getChecksum() = 661826309
