@@ -38,7 +38,7 @@ jobs:
           arguments: migrate test
 
       - name: Test Report
-        uses: dorny/test-reporter@v3
+        uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
           name: Unit Test Results
