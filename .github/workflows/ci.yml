@@ -2,6 +2,11 @@ name: CI
 
 on: [ push ]
 
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
 jobs:
   build:
     name: Unit Tests
@@ -19,9 +24,9 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'adopt'
@@ -33,7 +38,7 @@ jobs:
           arguments: migrate test
 
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         if: success() || failure()
         with:
           name: Unit Test Results
