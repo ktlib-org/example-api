@@ -21,10 +21,10 @@ interface UserLogin : Entity {
         update()
     }
 
-    val user: User get() = lazyAssociation(::user) { Users.findById(userId)!! }
+    val user: User get() = lazyValue(::user) { Users.findById(userId)!! }
 }
 
-fun List<UserLogin>.preloadUsers() = preloadLazyAssociation(
+fun List<UserLogin>.preloadUsers() = preloadLazyValue(
     UserLogin::user,
     { Users.findByIds(map { it.userId }) },
     { one, many -> many.find { one.userId == it.id }!! }

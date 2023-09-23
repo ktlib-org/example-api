@@ -6,8 +6,8 @@ import entities.EntityWithOrganizationStore
 import entities.user.User
 import entities.user.Users
 import org.ktlib.entities.Factory
-import org.ktlib.entities.lazyAssociation
-import org.ktlib.entities.preloadLazyAssociation
+import org.ktlib.entities.lazyValue
+import org.ktlib.entities.preloadLazyValue
 import org.ktlib.lookup
 
 enum class UserRole {
@@ -25,7 +25,7 @@ interface OrganizationUser : EntityWithOrganization {
     val userId: String
     val role: UserRole
 
-    val user: User get() = lazyAssociation(::user) { Users.findById(userId)!! }
+    val user: User get() = lazyValue(::user) { Users.findById(userId)!! }
 
     fun toOrganizationUserWithUser() = OrganizationUserWithUser(this)
 
@@ -39,7 +39,7 @@ interface OrganizationUser : EntityWithOrganization {
     val hasAdminPrivileges: Boolean get() = role >= UserRole.Admin
 }
 
-fun List<OrganizationUser>.preloadUsers() = preloadLazyAssociation(
+fun List<OrganizationUser>.preloadUsers() = preloadLazyValue(
     OrganizationUser::user,
     { Users.findByIds(map { it.userId }) },
     { one, many -> many.find { one.userId == it.id }!! }

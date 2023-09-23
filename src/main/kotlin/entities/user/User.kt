@@ -65,10 +65,10 @@ interface User : Entity {
 
     val fullName: String get() = "$firstName $lastName".trim()
 
-    val roles: List<OrganizationUser> get() = lazyAssociation(::roles) { OrganizationUsers.findByUserId(id) }
+    val roles: List<OrganizationUser> get() = lazyValue(::roles) { OrganizationUsers.findByUserId(id) }
 }
 
-fun List<User>.preloadRoles() = preloadLazyAssociationList(
+fun List<User>.preloadRoles() = preloadLazyList(
     User::roles,
     { OrganizationUsers.findByUserIds(ids()) },
     { one, many -> many.filter { it.userId == one.id } }

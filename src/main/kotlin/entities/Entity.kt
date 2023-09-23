@@ -4,14 +4,14 @@ import entities.organization.Organization
 import entities.organization.Organizations
 import org.ktlib.entities.Entity
 import org.ktlib.entities.EntityStore
-import org.ktlib.entities.lazyAssociation
-import org.ktlib.entities.preloadLazyAssociation
+import org.ktlib.entities.lazyValue
+import org.ktlib.entities.preloadLazyValue
 
 interface EntityWithOrganization : Entity {
     var organizationId: String
 
     val organization: Organization
-        get() = lazyAssociation(::organization) { Organizations.findById(organizationId)!! }
+        get() = lazyValue(::organization) { Organizations.findById(organizationId)!! }
 }
 
 interface EntityWithOrganizationStore<T : EntityWithOrganization> : EntityStore<T> {
@@ -22,7 +22,7 @@ interface EntityWithOrganizationStore<T : EntityWithOrganization> : EntityStore<
         findByIdAndOrganizationId(id, organizationId) != null
 }
 
-fun <T : EntityWithOrganization> List<T>.preloadOrganizations() = preloadLazyAssociation(
+fun <T : EntityWithOrganization> List<T>.preloadOrganizations() = preloadLazyValue(
     EntityWithOrganization::organization,
     { Organizations.findByIds(this.map { it.organizationId }.distinct()) },
     { one, many -> many.find { it.id == one.organizationId }!! }
