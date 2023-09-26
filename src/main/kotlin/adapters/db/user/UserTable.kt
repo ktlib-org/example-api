@@ -10,9 +10,9 @@ import org.ktorm.schema.boolean
 import org.ktorm.schema.int
 import org.ktorm.schema.varchar
 
-interface UserKtorm : KtormEntity<UserKtorm>, User
+interface UserKtorm : EntityKtorm<UserKtorm>, User
 
-object UserTable : KtormEntityTable<UserKtorm, User, UserStore>("user"), UserStore {
+object UserTable : EntityTable<UserKtorm, User>("user"), UserStore {
     val firstName = varchar("first_name").bindTo { it.firstName }
     val lastName = varchar("last_name").bindTo { it.lastName }
     val email = varchar("email").bindTo { it.email }

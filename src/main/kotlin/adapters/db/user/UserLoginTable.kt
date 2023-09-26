@@ -9,9 +9,9 @@ import org.ktorm.dsl.eq
 import org.ktorm.schema.boolean
 import org.ktorm.schema.varchar
 
-interface UserLoginKtorm : KtormEntity<UserLoginKtorm>, UserLogin
+interface UserLoginKtorm : EntityKtorm<UserLoginKtorm>, UserLogin
 
-object UserLoginTable : KtormEntityTable<UserLoginKtorm, UserLogin, UserLoginStore>("user_login"),
+object UserLoginTable : EntityTable<UserLoginKtorm, UserLogin>("user_login"),
     UserLoginStore {
     val token = varchar("token").bindTo { it.token }
     val userId = varchar("user_id").bindTo { it.userId }

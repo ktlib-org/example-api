@@ -11,10 +11,10 @@ import org.ktorm.dsl.eq
 import org.ktorm.schema.enum
 import org.ktorm.schema.varchar
 
-interface UserValidationKtorm : KtormEntity<UserValidationKtorm>, UserValidation
+interface UserValidationKtorm : EntityKtorm<UserValidationKtorm>, UserValidation
 
 object UserValidationTable :
-    KtormEntityTable<UserValidationKtorm, UserValidation, UserValidationStore>("user_validation"),
+    EntityTable<UserValidationKtorm, UserValidation>("user_validation"),
     UserValidationStore {
     val token = varchar("token").bindTo { it.token }
     val firstName = varchar("first_name").bindTo { it.firstName }

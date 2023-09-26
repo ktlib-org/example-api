@@ -1,7 +1,7 @@
 package adapters.db.organization
 
+import adapters.db.EntityKtormWithOrganization
 import adapters.db.EntityWithOrganizationTable
-import adapters.db.KtormEntityWithOrganization
 import entities.organization.OrganizationUser
 import entities.organization.OrganizationUserStore
 import entities.organization.UserRole
@@ -12,10 +12,10 @@ import org.ktorm.dsl.inList
 import org.ktorm.schema.enum
 import org.ktorm.schema.varchar
 
-interface OrganizationUserKtorm : KtormEntityWithOrganization<OrganizationUserKtorm>, OrganizationUser
+interface OrganizationUserKtorm : EntityKtormWithOrganization<OrganizationUserKtorm>, OrganizationUser
 
 object OrganizationUserTable :
-    EntityWithOrganizationTable<OrganizationUserKtorm, OrganizationUser, OrganizationUserStore>("organization_user"),
+    EntityWithOrganizationTable<OrganizationUserKtorm, OrganizationUser>("organization_user"),
     OrganizationUserStore {
     val userId = varchar("user_id").bindTo { it.userId }
     val role = enum<UserRole>("role").bindTo { it.role }

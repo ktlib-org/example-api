@@ -3,23 +3,21 @@ package adapters.db
 import entities.EntityWithOrganization
 import entities.EntityWithOrganizationStore
 import org.ktlib.db.Database
-import org.ktlib.db.ktorm.KtormEntity
-import org.ktlib.db.ktorm.KtormEntityTable
+import org.ktlib.db.ktorm.EntityKtorm
+import org.ktlib.db.ktorm.EntityTable
 import org.ktlib.db.ktorm.findList
 import org.ktlib.db.ktorm.findOne
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
 import org.ktorm.schema.varchar
-import kotlin.reflect.KClass
 
-interface KtormEntityWithOrganization<E : org.ktorm.entity.Entity<E>> : KtormEntity<E>,
+interface EntityKtormWithOrganization<E : org.ktorm.entity.Entity<E>> : EntityKtorm<E>,
     EntityWithOrganization
 
-abstract class EntityWithOrganizationTable<E : KtormEntityWithOrganization<E>, T : EntityWithOrganization, S : EntityWithOrganizationStore<T>>(
+abstract class EntityWithOrganizationTable<E : EntityKtormWithOrganization<E>, T : EntityWithOrganization>(
     tableName: String,
     alias: String? = null,
-    entityClass: KClass<E>? = null
-) : KtormEntityTable<E, T, S>(tableName, alias, entityClass), EntityWithOrganizationStore<T> {
+) : EntityTable<E, T>(tableName, alias), EntityWithOrganizationStore<T> {
     val organizationId = varchar("organization_id").bindTo { it.organizationId }
 
     @Suppress("UNCHECKED_CAST")

@@ -11,9 +11,9 @@ import org.ktorm.schema.datetime
 import org.ktorm.schema.varchar
 import java.time.LocalDateTime
 
-interface JobKtorm : KtormEntity<JobKtorm>, Job
+interface JobKtorm : EntityKtorm<JobKtorm>, Job
 
-object JobTable : KtormEntityTable<JobKtorm, Job, JobStore>("job"), JobStore {
+object JobTable : EntityTable<JobKtorm, Job>("job"), JobStore {
     val enabled = boolean("enabled").bindTo { it.enabled }
     val lastStartTime = datetime("last_start_time").bindTo { it.lastStartTime }
     val function = varchar("function").bindTo { it.function }

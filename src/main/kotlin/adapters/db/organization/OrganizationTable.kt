@@ -2,14 +2,14 @@ package adapters.db.organization
 
 import entities.organization.Organization
 import entities.organization.OrganizationStore
-import org.ktlib.db.ktorm.KtormEntity
-import org.ktlib.db.ktorm.KtormEntityTable
+import org.ktlib.db.ktorm.EntityKtorm
+import org.ktlib.db.ktorm.EntityTable
 import org.ktlib.db.ktorm.findAll
 import org.ktorm.schema.varchar
 
-interface OrganizationKtorm : KtormEntity<OrganizationKtorm>, Organization
+interface OrganizationKtorm : EntityKtorm<OrganizationKtorm>, Organization
 
-object OrganizationTable : KtormEntityTable<OrganizationKtorm, Organization, OrganizationStore>("organization"),
+object OrganizationTable : EntityTable<OrganizationKtorm, Organization>("organization"),
     OrganizationStore {
     val name = varchar("name").bindTo { it.name }
 

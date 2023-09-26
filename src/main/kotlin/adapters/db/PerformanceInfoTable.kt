@@ -13,10 +13,9 @@ import org.ktorm.jackson.json
 import org.ktorm.schema.datetime
 import java.time.LocalDateTime
 
-interface PerformanceInfoKtorm : KtormEntity<PerformanceInfoKtorm>, PerformanceInfo
+interface PerformanceInfoKtorm : EntityKtorm<PerformanceInfoKtorm>, PerformanceInfo
 
-object PerformanceInfoTable :
-    KtormEntityTable<PerformanceInfoKtorm, PerformanceInfo, PerformanceInfoStore>("performance_info"),
+object PerformanceInfoTable : EntityTable<PerformanceInfoKtorm, PerformanceInfo>("performance_info"),
     PerformanceInfoStore {
     val time = datetime("time").bindTo { it.time }
     val data = json<List<PerformanceData>>("data").bindTo { it.data }
