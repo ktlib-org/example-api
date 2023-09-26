@@ -11,10 +11,10 @@ import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
 import org.ktorm.schema.varchar
 
-interface EntityKtormWithOrganization<E : org.ktorm.entity.Entity<E>> : EntityKtorm<E>,
+interface EntityWithOrganizationKtorm<E : org.ktorm.entity.Entity<E>> : EntityKtorm<E>,
     EntityWithOrganization
 
-abstract class EntityWithOrganizationTable<E : EntityKtormWithOrganization<E>, T : EntityWithOrganization>(
+abstract class EntityWithOrganizationTable<E : EntityWithOrganizationKtorm<E>, T : EntityWithOrganization>(
     tableName: String,
     alias: String? = null,
 ) : EntityTable<E, T>(tableName, alias), EntityWithOrganizationStore<T> {

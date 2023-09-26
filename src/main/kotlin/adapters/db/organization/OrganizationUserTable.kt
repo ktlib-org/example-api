@@ -1,6 +1,6 @@
 package adapters.db.organization
 
-import adapters.db.EntityKtormWithOrganization
+import adapters.db.EntityWithOrganizationKtorm
 import adapters.db.EntityWithOrganizationTable
 import entities.organization.OrganizationUser
 import entities.organization.OrganizationUserStore
@@ -12,7 +12,7 @@ import org.ktorm.dsl.inList
 import org.ktorm.schema.enum
 import org.ktorm.schema.varchar
 
-interface OrganizationUserKtorm : EntityKtormWithOrganization<OrganizationUserKtorm>, OrganizationUser
+interface OrganizationUserKtorm : EntityWithOrganizationKtorm<OrganizationUserKtorm>, OrganizationUser
 
 object OrganizationUserTable :
     EntityWithOrganizationTable<OrganizationUserKtorm, OrganizationUser>("organization_user"),
