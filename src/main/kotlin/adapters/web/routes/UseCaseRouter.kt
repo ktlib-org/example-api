@@ -1,7 +1,7 @@
 package adapters.web.routes
 
-import adapters.web.organizationIdOrNull
-import adapters.web.userLoginOrNull
+import adapters.web.organizationId
+import adapters.web.userToken
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
@@ -10,6 +10,7 @@ import org.ktlib.web.Router
 import usecases.UseCase
 import usecases.UseCaseConfig
 import usecases.UseCaseContext
+import usecases.createContext
 import kotlin.reflect.KClass
 
 object UseCaseRouter : Router {
@@ -19,10 +20,10 @@ object UseCaseRouter : Router {
 
     fun execute(ctx: Context, useCaseType: KClass<out UseCase<Any, Any?>>, inputType: KClass<Any>) {
         val context = if (inputType == Unit::class) {
-            UseCaseContext(ctx.userLoginOrNull, ctx.organizationIdOrNull, Unit)
+            createContext(ctx.userToken, ctx.organizationId)
         } else {
             val body = if (baseEncodeJson) ctx.bodyAsBytes().base64Decode() else ctx.bodyAsBytes()
-            UseCaseContext(ctx.userLoginOrNull, ctx.organizationIdOrNull, body.fromJson(inputType))
+            createContext(ctx.userToken, ctx.organizationId, body.fromJson(inputType))
         }
 
         @Suppress("UNCHECKED_CAST")

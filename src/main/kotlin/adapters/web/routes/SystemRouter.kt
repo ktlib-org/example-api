@@ -1,6 +1,6 @@
 package adapters.web.routes
 
-import adapters.web.userLoginOrNull
+import adapters.web.userToken
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.http.Context
 import io.javalin.http.HttpStatus
@@ -8,6 +8,7 @@ import org.ktlib.Environment
 import org.ktlib.config
 import org.ktlib.db.Database
 import org.ktlib.web.Router
+import usecases.createContext
 
 object SystemRouter : Router {
     private val baseEncodeJson = config<Boolean>("web.baseEncodeJson")
@@ -44,7 +45,7 @@ object SystemRouter : Router {
     )
 
     private fun isEmployee(ctx: Context) {
-        ctx.json(if (ctx.userLoginOrNull?.user?.employee == true) 1 else 0)
+        ctx.json(if (createContext(ctx.userToken, null, Unit).userLogin?.user?.employee == true) 1 else 0)
     }
 
     private fun isBaseEncodeJson(ctx: Context) {

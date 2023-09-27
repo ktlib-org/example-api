@@ -1,21 +1,7 @@
 package adapters.web
 
-import entities.user.UserLogin
-import entities.user.UserLogins
 import io.javalin.http.Context
 
-val Context.userLoginOrNull: UserLogin?
-    get() {
-        var login = attribute<UserLogin>("userLogin")
+val Context.userToken: String? get() = header("Authorization")?.substringAfter("Bearer ")
 
-        if (login == null) {
-            val token = header("Authorization")?.substringAfter("Bearer ");
-            login = UserLogins.findByToken(token)
-            attribute("userLogin", login)
-            attribute("userLoginId", login?.id)
-        }
-
-        return login
-    }
-
-val Context.organizationIdOrNull: String? get() = header("Organization")
+val Context.organizationId: String? get() = header("Organization")

@@ -1,4 +1,4 @@
-package adapters
+package services
 
 import entities.Job
 import entities.Jobs

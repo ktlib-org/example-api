@@ -1,6 +1,5 @@
 package adapters.db.migration
 
-import adapters.PerformanceRunner
 import entities.Jobs
 import entities.organization.OrganizationUsers
 import entities.organization.Organizations
@@ -10,13 +9,12 @@ import entities.user.Users.update
 import org.ktlib.Encryption
 import org.ktlib.Environment
 import org.ktlib.db.KotlinMigration
-import org.ktlib.toQualifiedName
 
 class M2_InitialData : KotlinMigration() {
     override fun migrate() {
         Jobs.create(
             name = "UpdatePerformanceTotals",
-            function = PerformanceRunner::loadRecentAndProcess.toQualifiedName(),
+            function = "services.PerformanceRunner.loadRecentAndProcess",
             cron = "*/5 * * * *",
             enabled = false
         )

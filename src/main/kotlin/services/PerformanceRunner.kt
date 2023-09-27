@@ -1,4 +1,4 @@
-package adapters
+package services
 
 import entities.PerformanceData
 import entities.PerformanceInfos

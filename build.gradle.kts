@@ -39,6 +39,7 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:1.12.7")
+    testImplementation("com.lemonappdev:konsist:0.12.2")
 }
 
 sourceSets {

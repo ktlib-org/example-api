@@ -5,6 +5,8 @@ import entities.organization.OrganizationUsers
 import entities.organization.UserRole
 import entities.user.User
 import entities.user.UserLogin
+import entities.user.UserLogins
+import org.ktlib.entities.NotFoundException
 import org.ktlib.entities.UnauthorizedException
 import org.ktlib.typeArguments
 import kotlin.reflect.KClass
@@ -15,6 +17,12 @@ enum class Role {
 
     val userRole: UserRole? by lazy { UserRole.entries.find { it.name == name } }
 }
+
+fun createContext(token: String? = null, orgId: String? = null) =
+    UseCaseContext(UserLogins.findByToken(token), orgId, Unit)
+
+fun <T> createContext(token: String? = null, orgId: String? = null, input: T) =
+    UseCaseContext(UserLogins.findByToken(token), orgId, input)
 
 class UseCaseContext<T>(
     val userLogin: UserLogin? = null,
@@ -69,10 +77,10 @@ abstract class UseCase<D : Any, T>(role: Role, vararg roles: Role) {
     protected abstract fun doExecute(): T
 
     private fun roleAuthorize() = when {
-        useCaseRoles.contains(Role.Employee) -> context.userLogin != null && currentUser.employee
+        useCaseRoles.contains(Role.Employee) -> if (currentUserLoginOrNull != null && currentUser.employee) true else throw NotFoundException()
         useCaseRoles.contains(Role.Anyone) -> true
-        useCaseRoles.contains(Role.UserNoOrg) && context.userLogin != null -> true
-        context.userLogin != null && context.orgId != null -> userHasRole() && authorize()
+        useCaseRoles.contains(Role.UserNoOrg) && currentUserLoginOrNull != null -> true
+        currentUserLoginOrNull != null && context.orgId != null -> userHasRole() && authorize()
         else -> false
     }
 

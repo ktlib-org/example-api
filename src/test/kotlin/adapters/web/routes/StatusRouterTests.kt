@@ -1,7 +1,6 @@
-package web.routes
+package adapters.web.routes
 
 import adapters.web.WebServer
-import adapters.web.routes.SystemRouter
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.ktlib.fromJson
