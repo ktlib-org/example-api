@@ -1,5 +1,4 @@
-application:
-  name: Base Kotlin
+applicationName: Base Kotlin
 
 web:
   corsOrigins: "*"
