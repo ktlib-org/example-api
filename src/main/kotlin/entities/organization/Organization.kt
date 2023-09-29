@@ -22,5 +22,4 @@ object Organizations : OrganizationStore by lookup()
 
 interface OrganizationStore : EntityStore<Organization> {
     fun create(name: String): Organization
-    fun all(): List<Organization>
 }

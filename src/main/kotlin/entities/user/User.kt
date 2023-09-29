@@ -77,7 +77,6 @@ fun List<User>.preloadRoles() = preloadLazyList(
 object Users : UserStore by lookup()
 
 interface UserStore : EntityStore<User> {
-    fun all(): List<User>
     fun findByEmail(email: String?): User?
 
     fun create(validation: UserValidation) =
