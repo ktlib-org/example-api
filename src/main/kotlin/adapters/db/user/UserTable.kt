@@ -9,6 +9,7 @@ import org.ktorm.dsl.eq
 import org.ktorm.schema.boolean
 import org.ktorm.schema.int
 import org.ktorm.schema.varchar
+import java.util.*
 
 interface UserKtorm : EntityKtorm<UserKtorm>, User
 
@@ -50,7 +51,7 @@ object UserTable : EntityTable<UserKtorm, User>("user"), UserStore {
         }
     }
 
-    override fun updatePassword(id: String, password: String) {
+    override fun updatePassword(id: UUID, password: String) {
         update {
             set(it.password, password)
             set(passwordSet, true)

@@ -8,6 +8,7 @@ import org.ktlib.entities.EntityStore
 import org.ktlib.entities.Factory
 import org.ktlib.hoursAgo
 import org.ktlib.lookup
+import java.util.*
 
 interface UserValidation : Entity {
     companion object : Factory<UserValidation>()
@@ -15,11 +16,11 @@ interface UserValidation : Entity {
     var firstName: String
     var lastName: String
     var email: String
-    var organizationId: String?
+    var organizationId: UUID?
     var role: UserRole?
 
     @get:JsonIgnore
-    val userId: String?
+    val userId: UUID?
 
     @get:JsonIgnore
     var token: String
@@ -52,13 +53,13 @@ object UserValidations : UserValidationStore by lookup()
 
 interface UserValidationStore : EntityStore<UserValidation> {
     fun findByToken(token: String): UserValidation?
-    fun findByOrganization(organizationId: String): List<UserValidation>
-    fun findByOrganizationIdAndId(organizationId: String, id: String): UserValidation?
+    fun findByOrganization(organizationId: UUID): List<UserValidation>
+    fun findByOrganizationIdAndId(organizationId: UUID, id: UUID): UserValidation?
     fun createForEmailValidation(email: String, firstName: String = "", lastName: String = ""): UserValidation
     fun createForForgotPassword(user: User): UserValidation
-    fun createForInvite(organizationId: String, role: UserRole, user: User): UserValidation
+    fun createForInvite(organizationId: UUID, role: UserRole, user: User): UserValidation
     fun createForInvite(
-        organizationId: String,
+        organizationId: UUID,
         role: UserRole,
         email: String,
         firstName: String = "",

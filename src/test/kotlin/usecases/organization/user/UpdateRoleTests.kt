@@ -7,6 +7,7 @@ import entities.user.User
 import entities.user.Users
 import io.kotest.matchers.shouldBe
 import usecases.UseCaseSpec
+import java.util.*
 
 class UpdateRoleTests : UseCaseSpec() {
     private lateinit var user: User
@@ -53,6 +54,6 @@ class UpdateRoleTests : UseCaseSpec() {
         }
     }
 
-    private fun execute(userToUpdate: String, role: UserRole) =
+    private fun execute(userToUpdate: UUID, role: UserRole) =
         useCase(UpdateRole::class, UpdateRole.Input(userToUpdate, role)).execute()
 }

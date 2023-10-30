@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import entities.user.UserLogins.update
 import org.ktlib.entities.*
 import org.ktlib.lookup
+import java.util.*
 
 
 interface UserLogin : Entity {
     companion object : Factory<UserLogin>()
 
-    val userId: String
-    val parentId: String?
+    val userId: UUID
+    val parentId: UUID?
     val token: String
 
     @get:JsonIgnore
@@ -33,7 +34,7 @@ fun List<UserLogin>.preloadUsers() = preloadLazyValue(
 object UserLogins : UserLoginStore by lookup()
 
 interface UserLoginStore : EntityStore<UserLogin> {
-    fun create(userId: String, parentId: String? = null): UserLogin
+    fun create(userId: UUID, parentId: UUID? = null): UserLogin
     fun findByToken(token: String?): UserLogin?
     fun findRecent(): List<UserLogin>
 }

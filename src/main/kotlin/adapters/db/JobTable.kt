@@ -10,6 +10,7 @@ import org.ktorm.schema.boolean
 import org.ktorm.schema.datetime
 import org.ktorm.schema.varchar
 import java.time.LocalDateTime
+import java.util.*
 
 interface JobKtorm : EntityKtorm<JobKtorm>, Job
 
@@ -32,7 +33,7 @@ object JobTable : EntityTable<JobKtorm, Job>("job"), JobStore {
         }
     }
 
-    override fun updateStartTime(id: String, currentTime: LocalDateTime?, newTime: LocalDateTime) =
+    override fun updateStartTime(id: UUID, currentTime: LocalDateTime?, newTime: LocalDateTime) =
         if (currentTime == null) {
             update {
                 set(lastStartTime, newTime)

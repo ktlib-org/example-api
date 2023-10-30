@@ -9,6 +9,7 @@ import org.ktlib.entities.Factory
 import org.ktlib.entities.lazyValue
 import org.ktlib.entities.preloadLazyValue
 import org.ktlib.lookup
+import java.util.*
 
 enum class UserRole {
     User, Admin, Owner;
@@ -22,7 +23,7 @@ data class OrganizationUserWithUser(private val orgUser: OrganizationUser) : Dat
 interface OrganizationUser : EntityWithOrganization {
     companion object : Factory<OrganizationUser>()
 
-    val userId: String
+    val userId: UUID
     val role: UserRole
 
     val user: User get() = lazyValue(::user) { Users.findById(userId)!! }
@@ -48,11 +49,11 @@ fun List<OrganizationUser>.preloadUsers() = preloadLazyValue(
 object OrganizationUsers : OrganizationUserStore by lookup()
 
 interface OrganizationUserStore : EntityWithOrganizationStore<OrganizationUser> {
-    fun create(organizationId: String, userId: String, role: UserRole): OrganizationUser
-    fun updateRole(id: String, role: UserRole): Int
-    fun findByUserId(userId: String): List<OrganizationUser>
-    fun findByUserIds(userIds: List<String>): List<OrganizationUser>
-    fun findByUserIdAndOrganizationId(userId: String, organizationId: String): OrganizationUser?
-    fun userBelongsToOrganization(userId: String, organizationId: String): Boolean
-    fun hasOneOwner(organizationId: String): Boolean
+    fun create(organizationId: UUID, userId: UUID, role: UserRole): OrganizationUser
+    fun updateRole(id: UUID, role: UserRole): Int
+    fun findByUserId(userId: UUID): List<OrganizationUser>
+    fun findByUserIds(userIds: List<UUID>): List<OrganizationUser>
+    fun findByUserIdAndOrganizationId(userId: UUID, organizationId: UUID): OrganizationUser?
+    fun userBelongsToOrganization(userId: UUID, organizationId: UUID): Boolean
+    fun hasOneOwner(organizationId: UUID): Boolean
 }

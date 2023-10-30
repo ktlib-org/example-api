@@ -12,6 +12,7 @@ import org.ktlib.entities.Validation.field
 import org.ktlib.entities.Validation.validEmailDomain
 import org.ktlib.entities.Validation.validate
 import org.ktlib.lookup
+import java.util.*
 
 interface User : Entity {
     companion object : Factory<User>()
@@ -83,5 +84,5 @@ interface UserStore : EntityStore<User> {
         create(email = validation.email, firstName = validation.firstName, lastName = validation.lastName)
 
     fun create(email: String, password: String? = null, firstName: String = "", lastName: String = ""): User?
-    fun updatePassword(id: String, password: String)
+    fun updatePassword(id: UUID, password: String)
 }

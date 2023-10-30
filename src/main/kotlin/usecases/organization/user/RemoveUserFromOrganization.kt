@@ -5,9 +5,10 @@ import entities.organization.OrganizationUsers.delete
 import entities.organization.UserRole
 import usecases.Role
 import usecases.UseCase
+import java.util.*
 
 class RemoveUserFromOrganization : UseCase<RemoveUserFromOrganization.Input, Unit>(Role.Admin) {
-    data class Input(val userId: String)
+    data class Input(val userId: UUID)
 
     override fun doExecute() {
         val orgUser = OrganizationUsers.findByUserIdAndOrganizationId(input.userId, orgId)

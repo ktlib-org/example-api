@@ -3,7 +3,6 @@ package adapters.db
 import entities.PerformanceData
 import entities.PerformanceInfo
 import entities.PerformanceInfoStore
-import org.ktlib.db.IdGenerator
 import org.ktlib.db.ktorm.*
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
@@ -23,7 +22,7 @@ object PerformanceInfoTable : EntityTable<PerformanceInfoKtorm, PerformanceInfo>
     override fun findByTime(time: LocalDateTime) = findOne { it.time eq time }
 
     override fun create(time: LocalDateTime, data: List<PerformanceData>) = insert {
-        set(it.id, IdGenerator.generate())
+        set(it.id, generateId())
         set(it.time, time)
         set(it.data, data)
     }

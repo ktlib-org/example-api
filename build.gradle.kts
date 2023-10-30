@@ -34,20 +34,12 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
     implementation("com.cronutils:cron-utils:9.2.0")
     implementation("org.flywaydb:flyway-core:9.22.0")
-    implementation("org.postgresql:postgresql:42.2.27")
+    implementation("org.postgresql:postgresql:42.5.4")
     testImplementation("io.javalin:javalin-testtools:$javalinVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-    testImplementation("io.mockk:mockk:1.12.7")
+    testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("com.lemonappdev:konsist:0.12.2")
-}
-
-sourceSets {
-    val javalinVersion: String by project
-
-    dependencies {
-        configurations["kapt"].dependencies.add(project.dependencies.create("io.javalin.community.openapi:openapi-annotation-processor:$javalinVersion"))
-    }
 }
 
 val hash = System.getenv()["GIT_HASH"]?.take(10) ?: "${System.currentTimeMillis()}".take(10)
@@ -58,10 +50,11 @@ apply(plugin = "kotlin")
 apply<org.ktlib.gradle.MigrationPlugin>()
 
 plugins {
+    val kotlinVersion = "1.9.10"
+
     application
     id("com.bmuschko.docker-java-application") version ("6.7.0")
-    kotlin("jvm") version "1.8.10"
-    kotlin("kapt") version "1.8.10"
+    kotlin("jvm") version kotlinVersion
 }
 
 application {

@@ -9,6 +9,7 @@ import entities.user.UserLogins
 import org.ktlib.entities.NotFoundException
 import org.ktlib.entities.UnauthorizedException
 import org.ktlib.typeArguments
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -18,15 +19,15 @@ enum class Role {
     val userRole: UserRole? by lazy { UserRole.entries.find { it.name == name } }
 }
 
-fun createContext(token: String? = null, orgId: String? = null) =
+fun createContext(token: String? = null, orgId: UUID? = null) =
     UseCaseContext(UserLogins.findByToken(token), orgId, Unit)
 
-fun <T> createContext(token: String? = null, orgId: String? = null, input: T) =
+fun <T> createContext(token: String? = null, orgId: UUID? = null, input: T) =
     UseCaseContext(UserLogins.findByToken(token), orgId, input)
 
 class UseCaseContext<T>(
     val userLogin: UserLogin? = null,
-    val orgId: String? = null,
+    val orgId: UUID? = null,
     val input: T? = null
 )
 
@@ -45,11 +46,11 @@ abstract class UseCase<D : Any, T>(role: Role, vararg roles: Role) {
     val input: D get() = context.input!!
     val currentUserLoginOrNull: UserLogin? get() = context.userLogin
     val currentUserLogin: UserLogin get() = currentUserLoginOrNull!!
-    val currentUserIdOrNull: String? get() = currentUserLoginOrNull?.userId
-    val currentUserId: String get() = currentUserIdOrNull!!
+    val currentUserIdOrNull: UUID? get() = currentUserLoginOrNull?.userId
+    val currentUserId: UUID get() = currentUserIdOrNull!!
     val currentUser: User get() = currentUserLogin.user
-    val orgIdOrNull: String? get() = context.orgId
-    val orgId: String get() = orgIdOrNull!!
+    val orgIdOrNull: UUID? get() = context.orgId
+    val orgId: UUID get() = orgIdOrNull!!
     open val aliases: List<String> = emptyList()
 
     val currentOrganizationUser: OrganizationUser? by lazy {

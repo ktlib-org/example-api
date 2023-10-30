@@ -9,7 +9,8 @@ import org.ktlib.db.ktorm.findList
 import org.ktlib.db.ktorm.findOne
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
-import org.ktorm.schema.varchar
+import org.ktorm.schema.uuid
+import java.util.*
 
 interface EntityWithOrganizationKtorm<E : org.ktorm.entity.Entity<E>> : EntityKtorm<E>,
     EntityWithOrganization
@@ -18,16 +19,16 @@ abstract class EntityWithOrganizationTable<E : EntityWithOrganizationKtorm<E>, T
     tableName: String,
     alias: String? = null,
 ) : EntityTable<E, T>(tableName, alias), EntityWithOrganizationStore<T> {
-    val organizationId = varchar("organization_id").bindTo { it.organizationId }
+    val organizationId = uuid("organization_id").bindTo { it.organizationId }
 
     @Suppress("UNCHECKED_CAST")
-    override fun findByOrganizationId(organizationId: String) =
+    override fun findByOrganizationId(organizationId: UUID) =
         findList { it.organizationId eq organizationId } as List<T>
 
-    override fun findIdsByOrganizationId(organizationId: String) =
+    override fun findIdsByOrganizationId(organizationId: UUID) =
         Database.queryIds("select id from $tableName where organization_id = ?", Database.param(organizationId))
 
     @Suppress("UNCHECKED_CAST")
-    override fun findByIdAndOrganizationId(id: String?, organizationId: String) =
+    override fun findByIdAndOrganizationId(id: UUID?, organizationId: UUID) =
         if (id == null) null else findOne { (it.organizationId eq organizationId) and (it.id eq id) } as T?
 }

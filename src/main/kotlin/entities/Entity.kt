@@ -6,19 +6,20 @@ import org.ktlib.entities.Entity
 import org.ktlib.entities.EntityStore
 import org.ktlib.entities.lazyValue
 import org.ktlib.entities.preloadLazyValue
+import java.util.*
 
 interface EntityWithOrganization : Entity {
-    var organizationId: String
+    var organizationId: UUID
 
     val organization: Organization
         get() = lazyValue(::organization) { Organizations.findById(organizationId)!! }
 }
 
 interface EntityWithOrganizationStore<T : EntityWithOrganization> : EntityStore<T> {
-    fun findByOrganizationId(organizationId: String): List<T>
-    fun findIdsByOrganizationId(organizationId: String): List<String>
-    fun findByIdAndOrganizationId(id: String?, organizationId: String): T?
-    fun existsByIdAndOrganizationId(id: String?, organizationId: String) =
+    fun findByOrganizationId(organizationId: UUID): List<T>
+    fun findIdsByOrganizationId(organizationId: UUID): List<UUID>
+    fun findByIdAndOrganizationId(id: UUID?, organizationId: UUID): T?
+    fun existsByIdAndOrganizationId(id: UUID?, organizationId: UUID) =
         findByIdAndOrganizationId(id, organizationId) != null
 }
 

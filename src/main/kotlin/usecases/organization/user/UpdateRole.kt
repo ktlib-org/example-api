@@ -5,9 +5,10 @@ import entities.organization.OrganizationUsers
 import entities.organization.UserRole
 import usecases.Role
 import usecases.UseCase
+import java.util.*
 
 class UpdateRole : UseCase<UpdateRole.Input, OrganizationUser?>(Role.Admin) {
-    data class Input(val userId: String, val role: UserRole)
+    data class Input(val userId: UUID, val role: UserRole)
 
     override fun doExecute(): OrganizationUser? {
         val currentRole = OrganizationUsers.findByUserIdAndOrganizationId(input.userId, orgId)

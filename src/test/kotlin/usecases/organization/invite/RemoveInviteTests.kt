@@ -4,6 +4,7 @@ import entities.organization.UserRole
 import entities.user.UserValidations
 import io.kotest.matchers.shouldBe
 import usecases.UseCaseSpec
+import java.util.*
 
 class RemoveInviteTests : UseCaseSpec() {
     init {
@@ -16,6 +17,6 @@ class RemoveInviteTests : UseCaseSpec() {
         }
     }
 
-    private fun execute(inviteId: String) =
+    private fun execute(inviteId: UUID) =
         useCase(RemoveInvite::class, RemoveInvite.Input(inviteId)).execute()
 }

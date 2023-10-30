@@ -10,6 +10,7 @@ import org.ktlib.entities.Factory
 import org.ktlib.lookup
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+import java.util.*
 
 interface Job : Entity {
     companion object : Factory<Job>()
@@ -53,5 +54,5 @@ object Jobs : JobStore by lookup()
 interface JobStore : EntityStore<Job> {
     fun create(name: String, cron: String, function: String, enabled: Boolean)
     fun findAllEnabled(): List<Job>
-    fun updateStartTime(id: String, currentTime: LocalDateTime?, newTime: LocalDateTime): Boolean
+    fun updateStartTime(id: UUID, currentTime: LocalDateTime?, newTime: LocalDateTime): Boolean
 }

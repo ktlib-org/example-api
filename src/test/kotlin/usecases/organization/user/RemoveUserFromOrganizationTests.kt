@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import usecases.UseCaseContext
 import usecases.UseCaseSpec
+import java.util.*
 
 class RemoveUserFromOrganizationTests : UseCaseSpec() {
     private lateinit var user: User
@@ -51,6 +52,6 @@ class RemoveUserFromOrganizationTests : UseCaseSpec() {
         }
     }
 
-    private fun execute(userId: String) =
+    private fun execute(userId: UUID) =
         useCase(RemoveUserFromOrganization::class, RemoveUserFromOrganization.Input(userId)).execute()
 }
