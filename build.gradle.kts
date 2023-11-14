@@ -1,6 +1,5 @@
 buildscript {
     val kotlinVersion: String by project
-    val ktlibVersion: String by project
 
     repositories {
         mavenCentral()
@@ -9,7 +8,7 @@ buildscript {
 
     dependencies {
         classpath(kotlin("gradle-plugin", version = kotlinVersion))
-        classpath("com.github.aaronfreeman:ktlib:$ktlibVersion")
+        classpath("com.github.ktlib-org:database:0.1.0")
     }
 }
 
@@ -22,13 +21,15 @@ repositories {
 
 dependencies {
     val ktormVersion: String by project
-    val ktlibVersion: String by project
     val javalinVersion: String by project
     val kotestVersion: String by project
 
-    implementation("com.github.aaronfreeman:ktlib:$ktlibVersion")
+    implementation("com.github.ktlib-org:core:0.1.16")
+    implementation("com.github.ktlib-org:database:0.1.0")
+    implementation("com.github.ktlib-org:web:0.1.0")
     implementation("org.ktorm:ktorm-core:$ktormVersion")
     implementation("org.ktorm:ktorm-jackson:$ktormVersion")
+    implementation("org.ktorm:ktorm-support-postgresql:$ktormVersion")
     implementation("io.javalin:javalin:$javalinVersion")
     implementation("io.javalin.community.openapi:javalin-openapi-plugin:$javalinVersion")
     implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")

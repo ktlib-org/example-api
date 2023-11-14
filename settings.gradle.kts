@@ -1,2 +1,2 @@
-rootProject.name = "base-kotlin"
+rootProject.name = "ktlib-example"
 

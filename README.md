@@ -1,4 +1,4 @@
-# base-kotlin
+# example-api
 
 This project uses gradle wrapper and docker for running Postgres.
 
