@@ -1,2 +1,2 @@
-rootProject.name = "ktlib-example"
+rootProject.name = "example-api"
 
