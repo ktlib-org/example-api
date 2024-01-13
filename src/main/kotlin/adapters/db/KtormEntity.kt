@@ -1,10 +1,10 @@
 package adapters.db
 
 import entities.EntityWithOrganization
-import entities.EntityWithOrganizationStore
+import entities.EntityWithOrganizationRepo
 import org.ktlib.db.Database
 import org.ktlib.db.ktorm.EntityKtorm
-import org.ktlib.db.ktorm.EntityTable
+import org.ktlib.db.ktorm.Table
 import org.ktlib.db.ktorm.findList
 import org.ktlib.db.ktorm.findOne
 import org.ktorm.dsl.and
@@ -18,7 +18,7 @@ interface EntityWithOrganizationKtorm<E : org.ktorm.entity.Entity<E>> : EntityKt
 abstract class EntityWithOrganizationTable<E : EntityWithOrganizationKtorm<E>, T : EntityWithOrganization>(
     tableName: String,
     alias: String? = null,
-) : EntityTable<E, T>(tableName, alias), EntityWithOrganizationStore<T> {
+) : Table<E, T>(tableName, alias), EntityWithOrganizationRepo<T> {
     val organizationId = uuid("organization_id").bindTo { it.organizationId }
 
     @Suppress("UNCHECKED_CAST")

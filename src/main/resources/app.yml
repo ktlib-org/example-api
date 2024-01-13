@@ -1,13 +1,10 @@
 applicationName: Base Kotlin
+bootstrap: adapters.Bootstrap
 
 web:
   corsOrigins: "*"
   openApi: false
   baseEncodeJson: false
-
-instances:
-  org.ktlib.email.Email: org.ktlib.email.SendGrid
-  org.ktlib.entities.EntityInitializer: adapters.db.EntityInitializer
 
 email:
   defaultFrom: noreply@ktlib.org

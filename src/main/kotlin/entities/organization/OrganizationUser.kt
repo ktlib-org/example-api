@@ -2,7 +2,7 @@ package entities.organization
 
 import entities.DataWithDates
 import entities.EntityWithOrganization
-import entities.EntityWithOrganizationStore
+import entities.EntityWithOrganizationRepo
 import entities.user.User
 import entities.user.Users
 import org.ktlib.entities.Factory
@@ -46,9 +46,9 @@ fun List<OrganizationUser>.preloadUsers() = preloadLazyValue(
     { one, many -> many.find { one.userId == it.id }!! }
 )
 
-object OrganizationUsers : OrganizationUserStore by lookup()
+object OrganizationUsers : OrganizationUserRepo by lookup()
 
-interface OrganizationUserStore : EntityWithOrganizationStore<OrganizationUser> {
+interface OrganizationUserRepo : EntityWithOrganizationRepo<OrganizationUser> {
     fun create(organizationId: UUID, userId: UUID, role: UserRole): OrganizationUser
     fun updateRole(id: UUID, role: UserRole): Int
     fun findByUserId(userId: UUID): List<OrganizationUser>

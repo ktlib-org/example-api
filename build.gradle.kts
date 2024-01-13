@@ -24,9 +24,9 @@ dependencies {
     val javalinVersion: String by project
     val kotestVersion: String by project
 
-    implementation("com.github.ktlib-org:core:0.1.16")
-    implementation("com.github.ktlib-org:database:0.1.0")
-    implementation("com.github.ktlib-org:web:0.1.0")
+    implementation("com.github.ktlib-org:core:0.4.2")
+    implementation("com.github.ktlib-org:database:0.2.1")
+    implementation("com.github.ktlib-org:web:0.2.0")
     implementation("org.ktorm:ktorm-core:$ktormVersion")
     implementation("org.ktorm:ktorm-jackson:$ktormVersion")
     implementation("org.ktorm:ktorm-support-postgresql:$ktormVersion")

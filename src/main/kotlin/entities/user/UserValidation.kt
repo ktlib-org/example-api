@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import entities.organization.UserRole
 import org.ktlib.email.EmailData
 import org.ktlib.entities.Entity
-import org.ktlib.entities.EntityStore
+import org.ktlib.entities.Repository
 import org.ktlib.entities.Factory
 import org.ktlib.hoursAgo
 import org.ktlib.lookup
@@ -49,9 +49,9 @@ interface UserValidation : Entity {
         }
 }
 
-object UserValidations : UserValidationStore by lookup()
+object UserValidations : UserValidationRepo by lookup()
 
-interface UserValidationStore : EntityStore<UserValidation> {
+interface UserValidationRepo : Repository<UserValidation> {
     fun findByToken(token: String): UserValidation?
     fun findByOrganization(organizationId: UUID): List<UserValidation>
     fun findByOrganizationIdAndId(organizationId: UUID, id: UUID): UserValidation?

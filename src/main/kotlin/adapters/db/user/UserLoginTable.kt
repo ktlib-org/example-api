@@ -1,7 +1,7 @@
 package adapters.db.user
 
 import entities.user.UserLogin
-import entities.user.UserLoginStore
+import entities.user.UserLoginRepo
 import org.ktlib.db.ktorm.*
 import org.ktlib.toHexString
 import org.ktorm.dsl.and
@@ -13,8 +13,8 @@ import java.util.*
 
 interface UserLoginKtorm : EntityKtorm<UserLoginKtorm>, UserLogin
 
-object UserLoginTable : EntityTable<UserLoginKtorm, UserLogin>("user_login"),
-    UserLoginStore {
+object UserLoginTable : Table<UserLoginKtorm, UserLogin>("user_login"),
+    UserLoginRepo {
     val token = varchar("token").bindTo { it.token }
     val userId = uuid("user_id").bindTo { it.userId }
     val parentId = uuid("parent_id").bindTo { it.parentId }

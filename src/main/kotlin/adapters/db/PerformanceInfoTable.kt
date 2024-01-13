@@ -2,7 +2,7 @@ package adapters.db
 
 import entities.PerformanceData
 import entities.PerformanceInfo
-import entities.PerformanceInfoStore
+import entities.PerformanceInfoRepo
 import org.ktlib.db.ktorm.*
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
@@ -14,8 +14,8 @@ import java.time.LocalDateTime
 
 interface PerformanceInfoKtorm : EntityKtorm<PerformanceInfoKtorm>, PerformanceInfo
 
-object PerformanceInfoTable : EntityTable<PerformanceInfoKtorm, PerformanceInfo>("performance_info"),
-    PerformanceInfoStore {
+object PerformanceInfoTable : Table<PerformanceInfoKtorm, PerformanceInfo>("performance_info"),
+    PerformanceInfoRepo {
     val time = datetime("time").bindTo { it.time }
     val data = json<List<PerformanceData>>("data").bindTo { it.data }
 

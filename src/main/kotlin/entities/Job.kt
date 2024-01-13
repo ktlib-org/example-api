@@ -5,7 +5,7 @@ import com.cronutils.model.definition.CronDefinitionBuilder
 import com.cronutils.model.time.ExecutionTime
 import com.cronutils.parser.CronParser
 import org.ktlib.entities.Entity
-import org.ktlib.entities.EntityStore
+import org.ktlib.entities.Repository
 import org.ktlib.entities.Factory
 import org.ktlib.lookup
 import java.time.LocalDateTime
@@ -49,9 +49,9 @@ interface Job : Entity {
         }
 }
 
-object Jobs : JobStore by lookup()
+object Jobs : JobRepo by lookup()
 
-interface JobStore : EntityStore<Job> {
+interface JobRepo : Repository<Job> {
     fun create(name: String, cron: String, function: String, enabled: Boolean)
     fun findAllEnabled(): List<Job>
     fun updateStartTime(id: UUID, currentTime: LocalDateTime?, newTime: LocalDateTime): Boolean

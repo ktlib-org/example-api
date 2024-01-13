@@ -3,7 +3,7 @@ package adapters.db.organization
 import adapters.db.EntityWithOrganizationKtorm
 import adapters.db.EntityWithOrganizationTable
 import entities.organization.OrganizationUser
-import entities.organization.OrganizationUserStore
+import entities.organization.OrganizationUserRepo
 import entities.organization.UserRole
 import org.ktlib.db.ktorm.*
 import org.ktorm.dsl.and
@@ -17,7 +17,7 @@ interface OrganizationUserKtorm : EntityWithOrganizationKtorm<OrganizationUserKt
 
 object OrganizationUserTable :
     EntityWithOrganizationTable<OrganizationUserKtorm, OrganizationUser>("organization_user"),
-    OrganizationUserStore {
+    OrganizationUserRepo {
     val userId = uuid("user_id").bindTo { it.userId }
     val role = enum<UserRole>("role").bindTo { it.role }
 

@@ -3,7 +3,7 @@ package entities
 import entities.organization.Organization
 import entities.organization.Organizations
 import org.ktlib.entities.Entity
-import org.ktlib.entities.EntityStore
+import org.ktlib.entities.Repository
 import org.ktlib.entities.lazyValue
 import org.ktlib.entities.preloadLazyValue
 import java.util.*
@@ -15,7 +15,7 @@ interface EntityWithOrganization : Entity {
         get() = lazyValue(::organization) { Organizations.findById(organizationId)!! }
 }
 
-interface EntityWithOrganizationStore<T : EntityWithOrganization> : EntityStore<T> {
+interface EntityWithOrganizationRepo<T : EntityWithOrganization> : Repository<T> {
     fun findByOrganizationId(organizationId: UUID): List<T>
     fun findIdsByOrganizationId(organizationId: UUID): List<UUID>
     fun findByIdAndOrganizationId(id: UUID?, organizationId: UUID): T?

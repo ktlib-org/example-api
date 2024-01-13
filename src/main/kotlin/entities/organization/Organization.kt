@@ -1,7 +1,7 @@
 package entities.organization
 
 import org.ktlib.entities.Entity
-import org.ktlib.entities.EntityStore
+import org.ktlib.entities.Repository
 import org.ktlib.entities.Factory
 import org.ktlib.entities.Validation.field
 import org.ktlib.entities.Validation.notBlank
@@ -18,8 +18,8 @@ interface Organization : Entity {
     }
 }
 
-object Organizations : OrganizationStore by lookup()
+object Organizations : OrganizationRepo by lookup()
 
-interface OrganizationStore : EntityStore<Organization> {
+interface OrganizationRepo : Repository<Organization> {
     fun create(name: String): Organization
 }

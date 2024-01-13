@@ -31,9 +31,9 @@ fun List<UserLogin>.preloadUsers() = preloadLazyValue(
     { one, many -> many.find { one.userId == it.id }!! }
 )
 
-object UserLogins : UserLoginStore by lookup()
+object UserLogins : UserLoginRepo by lookup()
 
-interface UserLoginStore : EntityStore<UserLogin> {
+interface UserLoginRepo : Repository<UserLogin> {
     fun create(userId: UUID, parentId: UUID? = null): UserLogin
     fun findByToken(token: String?): UserLogin?
     fun findRecent(): List<UserLogin>

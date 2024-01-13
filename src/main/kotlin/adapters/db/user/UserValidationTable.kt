@@ -3,7 +3,7 @@ package adapters.db.user
 import entities.organization.UserRole
 import entities.user.User
 import entities.user.UserValidation
-import entities.user.UserValidationStore
+import entities.user.UserValidationRepo
 import org.ktlib.db.ktorm.*
 import org.ktlib.sha512
 import org.ktorm.dsl.and
@@ -16,8 +16,8 @@ import java.util.*
 interface UserValidationKtorm : EntityKtorm<UserValidationKtorm>, UserValidation
 
 object UserValidationTable :
-    EntityTable<UserValidationKtorm, UserValidation>("user_validation"),
-    UserValidationStore {
+    Table<UserValidationKtorm, UserValidation>("user_validation"),
+    UserValidationRepo {
     val token = varchar("token").bindTo { it.token }
     val firstName = varchar("first_name").bindTo { it.firstName }
     val lastName = varchar("last_name").bindTo { it.lastName }

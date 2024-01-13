@@ -1,7 +1,7 @@
 package adapters.db.user
 
 import entities.user.User
-import entities.user.UserStore
+import entities.user.UserRepo
 import entities.user.UserValidation
 import org.ktlib.Encryption
 import org.ktlib.db.ktorm.*
@@ -13,7 +13,7 @@ import java.util.*
 
 interface UserKtorm : EntityKtorm<UserKtorm>, User
 
-object UserTable : EntityTable<UserKtorm, User>("user"), UserStore {
+object UserTable : Table<UserKtorm, User>("user"), UserRepo {
     val firstName = varchar("first_name").bindTo { it.firstName }
     val lastName = varchar("last_name").bindTo { it.lastName }
     val email = varchar("email").bindTo { it.email }

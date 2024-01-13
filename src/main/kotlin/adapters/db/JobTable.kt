@@ -1,7 +1,7 @@
 package adapters.db
 
 import entities.Job
-import entities.JobStore
+import entities.JobRepo
 import org.ktlib.db.ktorm.*
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
@@ -14,7 +14,7 @@ import java.util.*
 
 interface JobKtorm : EntityKtorm<JobKtorm>, Job
 
-object JobTable : EntityTable<JobKtorm, Job>("job"), JobStore {
+object JobTable : Table<JobKtorm, Job>("job"), JobRepo {
     val enabled = boolean("enabled").bindTo { it.enabled }
     val lastStartTime = datetime("last_start_time").bindTo { it.lastStartTime }
     val function = varchar("function").bindTo { it.function }
