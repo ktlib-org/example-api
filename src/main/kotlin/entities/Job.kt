@@ -7,7 +7,7 @@ import com.cronutils.parser.CronParser
 import org.ktlib.entities.Entity
 import org.ktlib.entities.Repository
 import org.ktlib.entities.Factory
-import org.ktlib.lookup
+import org.ktlib.lookupInstance
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.*
@@ -49,7 +49,7 @@ interface Job : Entity {
         }
 }
 
-object Jobs : JobRepo by lookup()
+object Jobs : JobRepo by lookupInstance()
 
 interface JobRepo : Repository<Job> {
     fun create(name: String, cron: String, function: String, enabled: Boolean)

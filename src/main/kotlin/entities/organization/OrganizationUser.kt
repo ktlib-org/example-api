@@ -8,7 +8,7 @@ import entities.user.Users
 import org.ktlib.entities.Factory
 import org.ktlib.entities.lazyValue
 import org.ktlib.entities.preloadLazyValue
-import org.ktlib.lookup
+import org.ktlib.lookupInstance
 import java.util.*
 
 enum class UserRole {
@@ -46,7 +46,7 @@ fun List<OrganizationUser>.preloadUsers() = preloadLazyValue(
     { one, many -> many.find { one.userId == it.id }!! }
 )
 
-object OrganizationUsers : OrganizationUserRepo by lookup()
+object OrganizationUsers : OrganizationUserRepo by lookupInstance()
 
 interface OrganizationUserRepo : EntityWithOrganizationRepo<OrganizationUser> {
     fun create(organizationId: UUID, userId: UUID, role: UserRole): OrganizationUser

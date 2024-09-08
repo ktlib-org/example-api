@@ -7,7 +7,7 @@ import org.ktlib.entities.Entity
 import org.ktlib.entities.Repository
 import org.ktlib.entities.Factory
 import org.ktlib.hoursAgo
-import org.ktlib.lookup
+import org.ktlib.lookupInstance
 import java.util.*
 
 interface UserValidation : Entity {
@@ -49,7 +49,7 @@ interface UserValidation : Entity {
         }
 }
 
-object UserValidations : UserValidationRepo by lookup()
+object UserValidations : UserValidationRepo by lookupInstance()
 
 interface UserValidationRepo : Repository<UserValidation> {
     fun findByToken(token: String): UserValidation?

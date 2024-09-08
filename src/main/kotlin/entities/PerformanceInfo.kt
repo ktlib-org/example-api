@@ -3,7 +3,7 @@ package entities
 import org.ktlib.entities.Entity
 import org.ktlib.entities.Repository
 import org.ktlib.entities.Factory
-import org.ktlib.lookup
+import org.ktlib.lookupInstance
 import org.ktlib.trace.TraceData
 import java.time.LocalDateTime
 
@@ -31,7 +31,7 @@ interface PerformanceInfo : Entity {
     var data: List<PerformanceData>
 }
 
-object PerformanceInfos : PerformanceInfoRepo by lookup()
+object PerformanceInfos : PerformanceInfoRepo by lookupInstance()
 
 interface PerformanceInfoRepo : Repository<PerformanceInfo> {
     fun findByTime(time: LocalDateTime): PerformanceInfo?

@@ -3,7 +3,7 @@ package entities.user
 import com.fasterxml.jackson.annotation.JsonIgnore
 import entities.user.UserLogins.update
 import org.ktlib.entities.*
-import org.ktlib.lookup
+import org.ktlib.lookupInstance
 import java.util.*
 
 
@@ -31,7 +31,7 @@ fun List<UserLogin>.preloadUsers() = preloadLazyValue(
     { one, many -> many.find { one.userId == it.id }!! }
 )
 
-object UserLogins : UserLoginRepo by lookup()
+object UserLogins : UserLoginRepo by lookupInstance()
 
 interface UserLoginRepo : Repository<UserLogin> {
     fun create(userId: UUID, parentId: UUID? = null): UserLogin

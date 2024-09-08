@@ -11,7 +11,7 @@ import org.ktlib.entities.Validation.check
 import org.ktlib.entities.Validation.field
 import org.ktlib.entities.Validation.validEmailDomain
 import org.ktlib.entities.Validation.validate
-import org.ktlib.lookup
+import org.ktlib.lookupInstance
 import java.util.*
 
 interface User : Entity {
@@ -75,7 +75,7 @@ fun List<User>.preloadRoles() = preloadLazyList(
     { one, many -> many.filter { it.userId == one.id } }
 )
 
-object Users : UserRepo by lookup()
+object Users : UserRepo by lookupInstance()
 
 interface UserRepo : Repository<User> {
     fun findByEmail(email: String?): User?

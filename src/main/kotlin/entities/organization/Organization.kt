@@ -6,7 +6,7 @@ import org.ktlib.entities.Factory
 import org.ktlib.entities.Validation.field
 import org.ktlib.entities.Validation.notBlank
 import org.ktlib.entities.Validation.validate
-import org.ktlib.lookup
+import org.ktlib.lookupInstance
 
 interface Organization : Entity {
     companion object : Factory<Organization>()
@@ -18,7 +18,7 @@ interface Organization : Entity {
     }
 }
 
-object Organizations : OrganizationRepo by lookup()
+object Organizations : OrganizationRepo by lookupInstance()
 
 interface OrganizationRepo : Repository<Organization> {
     fun create(name: String): Organization
