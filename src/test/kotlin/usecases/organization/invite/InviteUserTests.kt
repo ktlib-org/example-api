@@ -1,8 +1,8 @@
 package usecases.organization.invite
 
 
-import entities.organization.OrganizationUsers
-import entities.organization.UserRole
+import domain.entities.organization.OrganizationUsers
+import domain.entities.organization.UserRole
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs

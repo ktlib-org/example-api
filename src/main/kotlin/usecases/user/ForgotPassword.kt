@@ -1,10 +1,10 @@
 package usecases.user
 
-import entities.user.User
-import entities.user.UserValidation
-import entities.user.UserValidations
-import entities.user.Users
-import entities.user.Users.update
+import domain.entities.user.User
+import domain.entities.user.UserValidation
+import domain.entities.user.UserValidations
+import domain.entities.user.Users
+import domain.entities.user.Users.update
 import org.ktlib.email.Email
 import org.ktlib.entities.transaction
 import org.ktlib.urlEncode

@@ -56,7 +56,7 @@ plugins {
 }
 
 application {
-    mainClass.set("adapters.AppKt")
+    mainClass.set("infrastructure.AppKt")
 }
 
 docker {

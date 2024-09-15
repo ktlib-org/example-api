@@ -1,5 +1,5 @@
 applicationName: Base Kotlin
-bootstrap: adapters.Bootstrap
+bootstrap: infrastructure.Bootstrap
 
 web:
   corsOrigins: "*"

@@ -1,7 +1,7 @@
 package usecases.user
 
-import entities.user.User
-import entities.user.Users
+import domain.entities.user.User
+import domain.entities.user.Users
 import io.kotest.matchers.shouldBe
 import io.mockk.*
 import org.ktlib.email.Email

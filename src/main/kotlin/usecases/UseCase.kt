@@ -1,11 +1,11 @@
 package usecases
 
-import entities.organization.OrganizationUser
-import entities.organization.OrganizationUsers
-import entities.organization.UserRole
-import entities.user.User
-import entities.user.UserLogin
-import entities.user.UserLogins
+import domain.entities.organization.OrganizationUser
+import domain.entities.organization.OrganizationUsers
+import domain.entities.organization.UserRole
+import domain.entities.user.User
+import domain.entities.user.UserLogin
+import domain.entities.user.UserLogins
 import org.ktlib.entities.NotFoundException
 import org.ktlib.entities.UnauthorizedException
 import org.ktlib.typeArguments

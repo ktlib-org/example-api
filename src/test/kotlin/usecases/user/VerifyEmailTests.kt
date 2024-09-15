@@ -1,10 +1,10 @@
 package usecases.user
 
-import entities.user.UserLogin
-import entities.user.UserValidation
-import entities.user.UserValidations
-import entities.user.UserValidations.update
-import entities.user.Users
+import domain.entities.user.UserLogin
+import domain.entities.user.UserValidation
+import domain.entities.user.UserValidations
+import domain.entities.user.UserValidations.update
+import domain.entities.user.Users
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.ktlib.entities.ValidationException

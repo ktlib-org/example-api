@@ -1,7 +1,7 @@
 package usecases.employee
 
-import entities.organization.Organization
-import entities.organization.Organizations
+import domain.entities.organization.Organization
+import domain.entities.organization.Organizations
 
 class ListOrganizations : EmployeeUseCase<Unit, List<Organization>>() {
     override fun doExecute() = Organizations.all()

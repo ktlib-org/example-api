@@ -1,6 +1,6 @@
 package usecases.user
 
-import entities.user.UserValidation
+import domain.entities.user.UserValidation
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
 import org.ktlib.email.Email

@@ -1,8 +1,8 @@
 package usecases
 
-import entities.TestData
-import entities.user.UserLogin
-import entities.user.UserLogins
+import domain.entities.TestData
+import domain.entities.user.UserLogin
+import domain.entities.user.UserLogins
 import org.ktlib.test.EntitySpec
 import kotlin.reflect.KClass
 

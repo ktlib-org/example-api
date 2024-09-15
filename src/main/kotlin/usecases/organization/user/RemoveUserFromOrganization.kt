@@ -1,8 +1,8 @@
 package usecases.organization.user
 
-import entities.organization.OrganizationUsers
-import entities.organization.OrganizationUsers.delete
-import entities.organization.UserRole
+import domain.entities.organization.OrganizationUsers
+import domain.entities.organization.OrganizationUsers.delete
+import domain.entities.organization.UserRole
 import usecases.Role
 import usecases.UseCase
 import java.util.*

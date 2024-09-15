@@ -1,8 +1,8 @@
 package usecases.organization
 
-import entities.organization.Organization
-import entities.organization.Organizations
-import entities.organization.Organizations.update
+import domain.entities.organization.Organization
+import domain.entities.organization.Organizations
+import domain.entities.organization.Organizations.update
 import org.ktlib.entities.populateFrom
 import usecases.DataMap
 import usecases.Role

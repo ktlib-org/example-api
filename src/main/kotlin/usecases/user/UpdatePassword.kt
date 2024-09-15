@@ -1,7 +1,7 @@
 package usecases.user
 
-import entities.user.User
-import entities.user.Users
+import domain.entities.user.User
+import domain.entities.user.Users
 import org.ktlib.Encryption
 import org.ktlib.entities.Validation.lengthAtLeast
 import org.ktlib.entities.Validation.validateField

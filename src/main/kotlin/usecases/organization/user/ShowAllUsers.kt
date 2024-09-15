@@ -1,8 +1,8 @@
 package usecases.organization.user
 
-import entities.organization.OrganizationUserWithUser
-import entities.organization.OrganizationUsers
-import entities.organization.preloadUsers
+import domain.entities.organization.OrganizationUserWithUser
+import domain.entities.organization.OrganizationUsers
+import domain.entities.organization.preloadUsers
 import usecases.Role
 import usecases.UseCase
 

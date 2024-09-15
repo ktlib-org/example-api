@@ -1,14 +1,14 @@
 package usecases.user
 
-import entities.organization.Organization
-import entities.organization.OrganizationUsers
-import entities.organization.Organizations
-import entities.organization.UserRole
-import entities.user.UserLogins
-import entities.user.UserValidation
-import entities.user.UserValidations
-import entities.user.UserValidations.update
-import entities.user.Users
+import domain.entities.organization.Organization
+import domain.entities.organization.OrganizationUsers
+import domain.entities.organization.Organizations
+import domain.entities.organization.UserRole
+import domain.entities.user.UserLogins
+import domain.entities.user.UserValidation
+import domain.entities.user.UserValidations
+import domain.entities.user.UserValidations.update
+import domain.entities.user.Users
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe

@@ -1,6 +1,6 @@
 package usecases.user
 
-import entities.user.UserLogins.delete
+import domain.entities.user.UserLogins.delete
 import usecases.Role
 import usecases.UseCase
 

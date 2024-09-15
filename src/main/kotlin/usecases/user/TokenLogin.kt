@@ -1,9 +1,9 @@
 package usecases.user
 
-import entities.user.UserLogin
-import entities.user.UserLogins
-import entities.user.UserValidations
-import entities.user.UserValidations.delete
+import domain.entities.user.UserLogin
+import domain.entities.user.UserLogins
+import domain.entities.user.UserValidations
+import domain.entities.user.UserValidations.delete
 import org.ktlib.entities.ValidationError
 import org.ktlib.entities.ValidationErrors
 import org.ktlib.entities.ValidationException

@@ -1,10 +1,10 @@
 package usecases.organization
 
-import entities.organization.Organization
-import entities.organization.OrganizationUsers
-import entities.organization.Organizations.create
-import entities.organization.UserRole
-import entities.user.Users
+import domain.entities.organization.Organization
+import domain.entities.organization.OrganizationUsers
+import domain.entities.organization.Organizations.create
+import domain.entities.organization.UserRole
+import domain.entities.user.Users
 import org.ktlib.entities.populateFrom
 import org.ktlib.entities.transaction
 import org.ktlib.slack.Slack

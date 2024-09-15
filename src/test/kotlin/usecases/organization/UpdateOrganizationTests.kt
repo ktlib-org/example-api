@@ -1,6 +1,6 @@
 package usecases.organization
 
-import entities.organization.Organizations
+import domain.entities.organization.Organizations
 import io.kotest.matchers.shouldBe
 import usecases.UseCaseSpec
 

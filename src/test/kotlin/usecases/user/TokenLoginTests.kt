@@ -1,6 +1,6 @@
 package usecases.user
 
-import entities.user.UserValidations
+import domain.entities.user.UserValidations
 import io.kotest.matchers.shouldBe
 import usecases.UseCaseSpec
 

@@ -1,9 +1,9 @@
 package usecases.user
 
-import entities.user.User
-import entities.user.UserLogin
-import entities.user.UserLogins
-import entities.user.Users
+import domain.entities.user.User
+import domain.entities.user.UserLogin
+import domain.entities.user.UserLogins
+import domain.entities.user.Users
 import org.ktlib.Encryption
 import usecases.Role
 import usecases.UseCase

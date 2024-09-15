@@ -1,7 +1,7 @@
 package usecases.organization
 
-import entities.organization.Organization
-import entities.organization.Organizations
+import domain.entities.organization.Organization
+import domain.entities.organization.Organizations
 import usecases.Role
 import usecases.UseCase
 

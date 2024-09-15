@@ -1,7 +1,7 @@
 package usecases.organization.invite
 
-import entities.user.UserValidations
-import entities.user.UserValidations.delete
+import domain.entities.user.UserValidations
+import domain.entities.user.UserValidations.delete
 import usecases.Role
 import usecases.UseCase
 import java.util.*

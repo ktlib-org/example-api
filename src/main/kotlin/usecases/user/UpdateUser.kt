@@ -1,7 +1,7 @@
 package usecases.user
 
-import entities.user.CurrentUser
-import entities.user.Users.update
+import domain.entities.user.CurrentUser
+import domain.entities.user.Users.update
 import org.ktlib.entities.populateFrom
 import usecases.DataMap
 import usecases.Role

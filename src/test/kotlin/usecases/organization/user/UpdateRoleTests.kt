@@ -1,10 +1,10 @@
 package usecases.organization.user
 
-import entities.organization.OrganizationUser
-import entities.organization.OrganizationUsers
-import entities.organization.UserRole
-import entities.user.User
-import entities.user.Users
+import domain.entities.organization.OrganizationUser
+import domain.entities.organization.OrganizationUsers
+import domain.entities.organization.UserRole
+import domain.entities.user.User
+import domain.entities.user.Users
 import io.kotest.matchers.shouldBe
 import usecases.UseCaseSpec
 import java.util.*

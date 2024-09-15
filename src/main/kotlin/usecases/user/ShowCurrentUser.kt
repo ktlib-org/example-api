@@ -1,6 +1,6 @@
 package usecases.user
 
-import entities.user.CurrentUser
+import domain.entities.user.CurrentUser
 import usecases.Role
 import usecases.UseCase
 

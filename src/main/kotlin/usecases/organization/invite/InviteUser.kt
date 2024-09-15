@@ -1,12 +1,12 @@
 package usecases.organization.invite
 
-import entities.organization.Organization
-import entities.organization.OrganizationUsers
-import entities.organization.Organizations
-import entities.organization.UserRole
-import entities.user.User
-import entities.user.UserValidation
-import entities.user.UserValidations
+import domain.entities.organization.Organization
+import domain.entities.organization.OrganizationUsers
+import domain.entities.organization.Organizations
+import domain.entities.organization.UserRole
+import domain.entities.user.User
+import domain.entities.user.UserValidation
+import domain.entities.user.UserValidations
 import org.ktlib.email.Email
 import org.ktlib.entities.transaction
 import org.ktlib.urlEncode

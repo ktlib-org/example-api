@@ -1,8 +1,8 @@
 package usecases.user
 
-import entities.user.User
-import entities.user.Users
-import entities.user.Users.update
+import domain.entities.user.User
+import domain.entities.user.Users
+import domain.entities.user.Users.update
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every

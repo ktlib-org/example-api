@@ -1,7 +1,7 @@
 package usecases.organization.invite
 
-import entities.user.UserValidation
-import entities.user.UserValidations
+import domain.entities.user.UserValidation
+import domain.entities.user.UserValidations
 import usecases.Role
 import usecases.UseCase
 

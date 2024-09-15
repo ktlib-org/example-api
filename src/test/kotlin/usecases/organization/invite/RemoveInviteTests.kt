@@ -1,7 +1,7 @@
 package usecases.organization.invite
 
-import entities.organization.UserRole
-import entities.user.UserValidations
+import domain.entities.organization.UserRole
+import domain.entities.user.UserValidations
 import io.kotest.matchers.shouldBe
 import usecases.UseCaseSpec
 import java.util.*

@@ -1,6 +1,6 @@
 package usecases.user
 
-import entities.user.Users
+import domain.entities.user.Users
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.ktlib.entities.ValidationException

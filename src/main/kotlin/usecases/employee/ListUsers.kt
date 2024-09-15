@@ -1,10 +1,10 @@
 package usecases.employee
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import entities.organization.OrganizationUser
-import entities.user.User
-import entities.user.Users
-import entities.user.preloadRoles
+import domain.entities.organization.OrganizationUser
+import domain.entities.user.User
+import domain.entities.user.Users
+import domain.entities.user.preloadRoles
 
 class ListUsers : EmployeeUseCase<Unit, List<ListUsers.UserDataAll>>() {
     data class UserRoleData(@JsonIgnore private val orgUser: OrganizationUser) {
